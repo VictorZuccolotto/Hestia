@@ -1,0 +1,1864 @@
+button_card_templates:
+  header:
+    variables:
+      card_name: exemplo
+      lights_on_sensor_entity: sensor.hacs
+      acs_sensor: false
+      acs_sensor_entity: sensor.ac_on_livingroom5
+      temperature_sensor: false
+      temperature_sensor_entity: sensor.nspanel_quarto_dedo_temperature
+      image_url: /local/living_room.jpeg
+      i1:
+        entity: light.luz_quarto
+        display: grid
+        tap_action:
+          action: null
+          service: null
+          service_data: null
+          navigation_path: null
+          url_path: null
+          confirmation_text: Desligar tudo?
+        state_value_off: "off"
+        icon: null
+        icon_off: null
+      i2:
+        entity: light.luz_quarto
+        display: grid
+        tap_action:
+          action: null
+          service: null
+          service_data: null
+          navigation_path: null
+          url_path: null
+        state_value_off: "off"
+        icon: null
+        icon_off: null
+      i3:
+        entity: light.luz_quarto
+        display: grid
+        tap_action:
+          action: null
+          service: null
+          service_data: null
+          navigation_path: null
+          url_path: null
+        state_value_off: "off"
+        icon: null
+        icon_off: null
+      i4:
+        entity: light.luz_quarto
+        display: grid
+        tap_action:
+          action: null
+          service: null
+          service_data: null
+          navigation_path: null
+          url_path: null
+        state_value_off: "off"
+        icon: null
+        icon_off: null
+      i5:
+        entity: light.luz_quarto
+        display: grid
+        tap_action:
+          action: null
+          service: null
+          service_data: null
+          navigation_path: null
+          url_path: null
+        state_value_off: "off"
+        icon: null
+        icon_off: null
+      i6:
+        entity: light.luz_quarto
+        display: grid
+        tap_action:
+          action: null
+          service: null
+          service_data: null
+          navigation_path: null
+          url_path: null
+        state_value_off: "off"
+        icon: null
+        icon_off: null
+    name: "[[[ return variables.card_name ]]]"
+    color: var(--google-grey-500)
+    show_icon: false
+    show_name: true
+    show_label: true
+    triggers_update: all
+    label: |-
+      [[[
+        let a = '';
+        if(variables.temperature_sensor){
+          if(isNaN(states[variables.temperature_sensor_entity].state)){
+            a =  `<ha-icon icon="mdi:thermometer" style="width: 22px; height: 22px; filter: drop-shadow(1px 1px 1px black);"></ha-icon><span style="font-size: 16px; text-shadow: 1px 1px black; ">${states[variables.temperature_sensor_entity].attributes.current_temperature}°C | </span>`;
+          }else{
+            a =  `<ha-icon icon="mdi:thermometer" style="width: 22px; height: 22px; filter: drop-shadow(1px 1px 1px black);"></ha-icon><span style="font-size: 16px; text-shadow: 1px 1px black; ">${states[variables.temperature_sensor_entity].state}°C | </span>`;
+          }
+        }
+        if(variables.acs_sensor){
+          if(isNaN(states[variables.acs_sensor_entity].state)){
+              if(states[variables.acs_sensor_entity].state != 'off')
+                  a +=  `<ha-icon icon="mdi:air-conditioner" style="width: 22px; height: 22px; filter: drop-shadow(1px 1px 1px black);"></ha-icon><span style="font-size: 16px; text-shadow: 1px 1px black; ">on | </span>`
+              else
+                  a +=  `<ha-icon icon="mdi:air-conditioner" style="width: 22px; height: 22px; filter: drop-shadow(1px 1px 1px black);"></ha-icon><span style="font-size: 16px; text-shadow: 1px 1px black; ">off | </span>`
+          }else{
+              if(states[variables.acs_sensor_entity].state == 0)
+                  a +=  `<ha-icon icon="mdi:air-conditioner" style="width: 22px; height: 22px; filter: drop-shadow(1px 1px 1px black);"></ha-icon><span style="font-size: 16px; text-shadow: 1px 1px black; ">off | </span>`
+              else      
+                  a +=  `<ha-icon icon="mdi:air-conditioner" style="width: 22px; height: 22px; filter: drop-shadow(1px 1px 1px black);"></ha-icon><span style="font-size: 16px; text-shadow: 1px 1px black; ">${states[variables.acs_sensor_entity].state} on | </span>`
+          }
+        }
+        return a + `<ha-icon icon="mdi:lightbulb" style="width: 22px; height: 22px; filter: drop-shadow(1px 1px 1px black);"></ha-icon><span style="font-size: 16px; text-align: center; text-shadow: 1px 1px black; ">${states[variables.lights_on_sensor_entity].state}</span>`;
+      ]]]
+    styles:
+      card:
+        - height: 245px
+        - background: "[[[ return 'url(' + variables.image_url + ')' ]]]"
+        - background-size: 100% 100%
+        - background-repeat: no-repeat
+        - padding: 0px
+      grid:
+        - grid-template-areas: "'n n n n n n n' 'l l l l l l l' 'tarja i1 i2 i3 i4 i5 i6'"
+        - grid-template-columns: "min-content 1fr 1fr 1fr 1fr 1fr 1fr "
+        - grid-template-rows: 1fr 2.5fr 1fr
+        - justify-items: center
+      name:
+        - justify-self: start
+        - align-self: end
+        - font-weight: bold
+        - color: white
+        - font-size: 1.4em
+        - margin-left: 6px
+        - text-shadow: 1px 1px black
+      label:
+        - justify-self: start
+        - align-self: start
+        - font-weight: bold
+        - color: white
+        - font-size: 0.7em
+        - margin-left: 6px
+      custom_fields:
+        i1:
+          - justify-self: center
+          - align-self: end
+          - width: 100%
+          - height: 100%
+          - display: "[[[ return variables.i1.display ]]]"
+        i2:
+          - justify-self: center
+          - align-self: end
+          - width: 100%
+          - height: 100%
+          - display: "[[[ return variables.i2.display ]]]"
+        i3:
+          - justify-self: center
+          - align-self: end
+          - border-radius: 50%
+          - width: 100%
+          - height: 100%
+          - display: "[[[ return variables.i3.display ]]]"
+        i4:
+          - justify-self: center
+          - align-self: end
+          - border-radius: 50%
+          - width: 100%
+          - height: 100%
+          - display: "[[[ return variables.i4.display ]]]"
+        i5:
+          - justify-self: center
+          - align-self: end
+          - border-radius: 50%
+          - width: 100%
+          - height: 100%
+          - display: "[[[ return variables.i5.display ]]]"
+        i6:
+          - justify-self: center
+          - align-self: end
+          - border-radius: 50%
+          - width: 100%
+          - height: 100%
+          - display: "[[[ return variables.i6.display ]]]"
+        tarja:
+          - justify-self: center
+          - align-self: end
+          - width: 100%
+          - height: 100%
+          - display: grid
+          - position: absolute
+          - pointer-events: none
+    custom_fields:
+      tarja:
+        card:
+          type: custom:button-card
+          show_icon: false
+          show_name: false
+          styles:
+            card:
+              - "--mdc-ripple-color": green
+              - "--mdc-ripple-press-opacity": 0
+              - height: 22%
+              - box-shadow: none
+              - padding: 0px
+              - margin-top: 0px
+              - border-radius: 0%
+              - background-color: rgba(28,28,28,0.5)
+              - position: absolute
+              - bottom: 0
+              - left: 0
+      i1:
+        card:
+          type: custom:button-card
+          entity: "[[[ return variables.i1.entity ]]]"
+          icon: "[[[ return variables.i1.icon ]]]"
+          show_icon: true
+          show_name: false
+          tap_action:
+            action: "[[[ return variables.i1.tap_action.action ]]]"
+            service: "[[[ return variables.i1.tap_action.service ]]]"
+            service_data: "[[[ return variables.i1.tap_action.service_data ]]]"
+            navigation_path: "[[[ return variables.i1.tap_action.navigation_path ]]]"
+            url_path: "[[[ return variables.i1.tap_action.url_path ]]]"
+            confirmation:
+              text: "[[[ return variables.i1.tap_action.confirmation_text ]]]"
+          hold_action:
+            action: none
+          styles:
+            card:
+              - "--mdc-ripple-color": white
+              - "--mdc-ripple-press-opacity": 0.5
+              - height: 100%
+              - box-shadow: none
+              - padding: 0px
+              - margin-top: 0px
+              - border-radius: 0%
+              - background-color: transparent
+            icon:
+              - width: 60%
+              - height: 60%
+              - color: rgba(255,0,0,1)
+          state:
+            - value: "[[[return variables.i1.state_value_off]]]"
+              icon: "[[[return variables.i1.icon_off]]]"
+              styles:
+                icon:
+                  - color: rgba(255,0,0,1)
+      i2:
+        card:
+          type: custom:button-card
+          entity: "[[[ return variables.i2.entity ]]]"
+          icon: "[[[ return variables.i2.icon ]]]"
+          show_icon: true
+          show_name: false
+          tap_action:
+            action: "[[[ return variables.i2.tap_action.action ]]]"
+            service: "[[[ return variables.i2.tap_action.service ]]]"
+            service_data: "[[[ return variables.i2.tap_action.service_data ]]]"
+            navigation_path: "[[[ return variables.i2.tap_action.navigation_path ]]]"
+            url_path: "[[[ return variables.i2.tap_action.url_path ]]]"
+          hold_action:
+            action: none
+          styles:
+            card:
+              - "--mdc-ripple-color": white
+              - "--mdc-ripple-press-opacity": 0.5
+              - height: 100%
+              - box-shadow: none
+              - padding: 0px
+              - margin-top: 0px
+              - border-radius: 0%
+              - background-color: transparent
+            icon:
+              - width: 60%
+              - height: 60%
+              - color: rgba(255,255,255,1)
+          state:
+            - value: "[[[return variables.i2.state_value_off]]]"
+              icon: "[[[return variables.i2.icon_off]]]"
+              styles:
+                icon:
+                  - color: rgba(190,190,190,1)
+      i3:
+        card:
+          type: custom:button-card
+          entity: "[[[ return variables.i3.entity ]]]"
+          icon: "[[[ return variables.i3.icon ]]]"
+          show_icon: true
+          show_name: false
+          tap_action:
+            action: "[[[ return variables.i3.tap_action.action ]]]"
+            service: "[[[ return variables.i3.tap_action.service ]]]"
+            service_data: "[[[ return variables.i3.tap_action.service_data ]]]"
+            navigation_path: "[[[ return variables.i3.tap_action.navigation_path ]]]"
+            url_path: "[[[ return variables.i3.tap_action.url_path ]]]"
+          hold_action:
+            action: none
+          styles:
+            card:
+              - "--mdc-ripple-color": white
+              - "--mdc-ripple-press-opacity": 0.5
+              - height: 100%
+              - box-shadow: none
+              - padding: 0px
+              - margin-top: 0px
+              - border-radius: 0%
+              - background-color: transparent
+            icon:
+              - width: 60%
+              - height: 60%
+              - color: rgba(255,255,255,1)
+          state:
+            - value: "[[[return variables.i3.state_value_off]]]"
+              icon: "[[[return variables.i3.icon_off]]]"
+              styles:
+                icon:
+                  - color: rgba(190,190,190,1)
+      i4:
+        card:
+          type: custom:button-card
+          entity: "[[[ return variables.i4.entity ]]]"
+          icon: "[[[ return variables.i4.icon ]]]"
+          show_icon: true
+          show_name: false
+          tap_action:
+            action: "[[[ return variables.i4.tap_action.action ]]]"
+            service: "[[[ return variables.i4.tap_action.service ]]]"
+            service_data: "[[[ return variables.i4.tap_action.service_data ]]]"
+            navigation_path: "[[[ return variables.i4.tap_action.navigation_path ]]]"
+            url_path: "[[[ return variables.i4.tap_action.url_path ]]]"
+          hold_action:
+            action: none
+          styles:
+            card:
+              - "--mdc-ripple-color": white
+              - "--mdc-ripple-press-opacity": 0.5
+              - height: 100%
+              - box-shadow: none
+              - padding: 0px
+              - margin-top: 0px
+              - border-radius: 0%
+              - background-color: transparent
+            icon:
+              - width: 60%
+              - height: 60%
+              - color: rgba(255,255,255,1)
+          state:
+            - value: "[[[return variables.i4.state_value_off]]]"
+              icon: "[[[return variables.i4.icon_off]]]"
+              styles:
+                icon:
+                  - color: rgba(190,190,190,1)
+      i5:
+        card:
+          type: custom:button-card
+          entity: "[[[ return variables.i5.entity ]]]"
+          icon: "[[[ return variables.i5.icon ]]]"
+          show_icon: true
+          show_name: false
+          tap_action:
+            action: "[[[ return variables.i5.tap_action.action ]]]"
+            service: "[[[ return variables.i5.tap_action.service ]]]"
+            service_data: "[[[ return variables.i5.tap_action.service_data ]]]"
+            navigation_path: "[[[ return variables.i5.tap_action.navigation_path ]]]"
+            url_path: "[[[ return variables.i5.tap_action.url_path ]]]"
+          hold_action:
+            action: none
+          styles:
+            card:
+              - "--mdc-ripple-color": white
+              - "--mdc-ripple-press-opacity": 0.5
+              - height: 100%
+              - box-shadow: none
+              - padding: 0px
+              - margin-top: 0px
+              - border-radius: 0%
+              - background-color: transparent
+            icon:
+              - width: 60%
+              - height: 60%
+              - color: rgba(255,255,255,1)
+          state:
+            - value: "[[[return variables.i5.state_value_off]]]"
+              icon: "[[[return variables.i5.icon_off]]]"
+              styles:
+                icon:
+                  - color: rgba(190,190,190,1)
+      i6:
+        card:
+          type: custom:button-card
+          entity: "[[[ return variables.i6.entity ]]]"
+          icon: "[[[ return variables.i6.icon ]]]"
+          show_icon: true
+          show_name: false
+          tap_action:
+            action: "[[[ return variables.i6.tap_action.action ]]]"
+            service: "[[[ return variables.i6.tap_action.service ]]]"
+            service_data: "[[[ return variables.i6.tap_action.service_data ]]]"
+            navigation_path: "[[[ return variables.i6.tap_action.navigation_path ]]]"
+            url_path: "[[[ return variables.i6.tap_action.url_path ]]]"
+          hold_action:
+            action: none
+          styles:
+            card:
+              - "--mdc-ripple-color": white
+              - "--mdc-ripple-press-opacity": 0.5
+              - height: 100%
+              - box-shadow: none
+              - padding: 0px
+              - margin-top: 0px
+              - border-radius: 0%
+              - background-color: transparent
+            icon:
+              - width: 60%
+              - height: 60%
+              - color: rgba(255,255,255,1)
+          state:
+            - value: "[[[return variables.i6.state_value_off]]]"
+              icon: "[[[return variables.i6.icon_off]]]"
+              styles:
+                icon:
+                  - color: rgba(190,190,190,1)
+
+  geral_buttons:
+    variables:
+      toggle_entity: teste
+      light: false
+      ac: false
+      media: false
+      cover: false
+    show_name: false
+    show_icon: false
+    show_label: true
+    tap_action:
+      action: null
+    label: >
+      [[[
+        if(variables.light){
+          if(isNaN(entity.state)){
+            return entity.state == 'off' ? 'Desligada' : 'Ligada'
+          }else{
+            if(entity.state == 0){
+              return 'Desligadas'
+            }else if(entity.state == 1){
+              return '1 Ligada'
+            }else{
+              return entity.state + ' Ligadas'
+            }
+          }
+        }else if(variables.ac){
+          if(isNaN(entity.state)){
+            return entity.state == 'off' ? 'Desligado' : 'Ligado'
+          }else{
+            if(entity.state == 0){
+              return 'Desligados'
+            }else if(entity.state == 1){
+              return '1 Ligado'
+            }else{
+              return entity.state + ' Ligados'
+            }
+          }
+        }else if(variables.media){
+          if(isNaN(entity.state)){
+            return entity.state == 'off' ? 'Desligada' : 'Ligada'
+          }else{
+            if(entity.state == 0){
+              return 'Desligadas'
+            }else if(entity.state == 1){
+              return '1 Ligada'
+            }else{
+              return entity.state + ' Ligadas'
+            }
+          }
+        }else if(variables.cover){
+          if(isNaN(entity.state)){
+            if(entity.state == 'closed' || entity.state == 'closing')
+              return 'Fechada'
+            else
+              return 'Aberta'
+          }else{
+            if(entity.state == 0){
+              return 'Fechadas'
+            }else if(entity.state == 1){
+              return '1 Aberta'
+            }else{
+              return entity.state + ' Abertas'
+            }
+          }
+        }
+      ]]]
+    custom_fields:
+      icone:
+        card:
+          type: custom:button-card
+          show_icon: true
+          show_name: false
+          show_label: false
+          entity: "[[[ return variables.toggle_entity ]]]"
+          icon: >
+            [[[
+              if(variables.light)
+                return 'mdi:lightbulb-group'
+              else if(variables.ac)
+                return 'mdi:air-conditioner'
+              else if(variables.media)
+                return 'mdi:television-speaker'
+              else if(variables.cover)
+                return 'mdi:curtains-closed'
+            ]]]
+          tap_action:
+            action: toggle
+          state:
+            - operator: template
+              value: >
+                [[[
+                  if(variables.light){
+                    if(isNaN(entity.state)){
+                      return entity.state != 'off'
+                    }else{
+                      return entity.state > 0
+                    }
+                  }else if(variables.ac){
+                    if(isNaN(entity.state)){
+                      return entity.state != 'off'
+                    }else{
+                      return entity.state > 0
+                    }
+                  }else if(variables.media){
+                    if(isNaN(entity.state)){
+                      return entity.state != 'off'
+                    }else{
+                      return entity.state > 0
+                    }
+                  }else if(variables.cover){
+                    if(isNaN(entity.state)){
+                      return entity.state != 'closed' && entity.state != 'closing'
+                    }else{
+                      return entity.state > 0
+                    }
+                  }
+                ]]]
+              icon: >
+                [[[
+                  if(variables.cover)
+                    return 'mdi:curtains'
+                ]]]
+              styles:
+                icon:
+                  - color: white
+          styles:
+            card:
+              - height: 40px
+              - width: 50px
+              - padding: 0px
+              - border-radius: 0%
+              - background-color: transparent
+            icon:
+              - height: 40px
+              - width: 40px
+              - color: gray
+    state:
+      - operator: template
+        value: >
+          [[[
+            if(variables.light){
+              if(isNaN(entity.state)){
+                return entity.state != 'off'
+              }else{
+                return entity.state > 0
+              }
+            }else if(variables.ac){
+              if(isNaN(entity.state)){
+                return entity.state != 'off'
+              }else{
+                return entity.state > 0
+              }
+            }else if(variables.media){
+              if(isNaN(entity.state)){
+                return entity.state != 'off'
+              }else{
+                return entity.state > 0
+              }
+            }else if(variables.cover){
+              if(isNaN(entity.state)){
+                return entity.state != 'closed' && entity.state != 'closing'
+              }else{
+                return entity.state > 0
+              }
+            }
+          ]]]
+        styles:
+          label:
+            - color: white
+    styles:
+      card:
+        - height: 100px
+        - background: transparent
+        - "--mdc-ripple-press-opacity": 0
+      grid:
+        - grid-template-areas: '"icone" "l"'
+        - grid-template-rows: " 3fr 2fr "
+        - grid-template-columns: " 1fr "
+        - justify-items: center
+      label:
+        - display: grid
+        - justify-self: center
+        - align-self: start
+        - font-weight: bold
+        - color: gray
+        - font-size: 0.7em
+        - white-space: initial
+        - width: 60px
+      custom_fields:
+        icone:
+          - display: grid
+          - justify-self: center
+          - align-self: center
+
+  label_card:
+    styles:
+      card:
+        - "--mdc-ripple-color": white
+        - "--mdc-ripple-press-opacity": 0.0
+        - height: 30px
+        - padding: 0px 0px 0px 20px
+        - background: transparent
+      grid:
+        - grid-template-areas: "'n'"
+      name:
+        - justify-self: start
+        - align-self: end
+        - font-weight: bold
+        - color: white
+        - font-size: 1.4em
+
+  lights_template:
+    variables:
+      rgb: false
+    show_icon: true
+    show_name: true
+    show_label: true
+    label: >
+      [[[
+        if(entity.state == 'off')
+          return 'Desligado';
+        else if(!variables.rgb)
+          return 'Ligado';
+        else
+          return isNaN(entity.attributes.brightness) ? 'Indisponível' : Math.round((entity.attributes.brightness/255)*100) + '%';
+      ]]]
+    styles:
+      card:
+        - height: 66px
+        - padding: 0px
+        - background: rgba(10,10,10,0.6)
+      grid:
+        - grid-template-areas: "'i n info' 'i l info'"
+        - grid-template-columns: " 2fr 3fr 1fr "
+        - grid-template-rows: "1fr 1fr"
+        - justify-items: start
+      icon:
+        - width: 30px
+        - color: rgb(255,204,0)
+      img_cell:
+        - border-radius: 50%
+        - width: 45px
+        - height: 45px
+        - background: rgba(10,10,10,0.4)
+      name:
+        - justify-self: start
+        - align-self: end
+        - font-weight: bold
+        - color: white
+        - font-size: 0.9em
+      label:
+        - justify-self: start
+        - align-self: start
+        - padding-top: 4px
+        - font-weight: bold
+        - color: gray
+        - font-size: 0.7em
+      custom_fields:
+        info:
+          - height: 100%
+          - justify-self: end
+          - display: '[[[ if (variables.rgb) return "grid"; else return "none" ]]]'
+    state:
+      - value: "on"
+        styles:
+          card:
+            - background: rgba(255,255,255,0.9)
+          name:
+            - color: black
+          icon:
+            - color: rgba(255,255,255,0.9)
+          img_cell:
+            - background: rgb(255,204,0)
+    custom_fields:
+      info:
+        card:
+          type: custom:button-card
+          entity: "[[[ return entity.entity_id ]]]"
+          show_icon: true
+          show_name: false
+          tap_action:
+            action: more-info
+          icon: mdi:dots-vertical
+          color: white
+          state:
+            - value: "on"
+              color: black
+          styles:
+            card:
+              - background: transparent
+            icon:
+              - height: 100%
+              - width: 32px
+            img_cell:
+              - height: 66px
+
+  acs_template:
+    show_icon: false
+    show_name: true
+    show_label: true
+    label: >
+      [[[
+        switch(entity.state) {
+          case 'heat_cool':
+            return 'Automático';
+            break;
+          case 'heat':
+            return 'Quente';
+            break;
+          case 'cool':
+            return 'Frio';
+            break;
+          case 'dry':
+            return 'Desumidificar';
+            break;
+          case 'fan_only':
+            return 'Ventilação';
+            break;
+          case 'off':
+            return 'Desligado';
+            break;
+          default:
+            return '';
+        }
+      ]]]
+    styles:
+      card:
+        - height: 66px
+        - padding: 0px
+        - background: rgba(255,255,255,0.9)
+      grid:
+        - grid-template-areas: "'icone n' 'icone l'"
+        - grid-template-columns: " 2fr 4fr "
+        - grid-template-rows: "1fr 1fr"
+        - justify-items: start
+      name:
+        - justify-self: start
+        - align-self: end
+        - font-weight: bold
+        - color: black
+        - font-size: 0.9em
+      label:
+        - justify-self: start
+        - align-self: start
+        - padding-top: 4px
+        - font-weight: bold
+        - color: gray
+        - font-size: 0.7em
+      custom_fields:
+        icone:
+          - display: grid
+          - justify-self: center
+          - align-self: center
+    state:
+      - value: "off"
+        styles:
+          card:
+            - background: rgba(10,10,10,0.6)
+          name:
+            - color: white
+    custom_fields:
+      icone:
+        card:
+          type: custom:button-card
+          entity: "[[[ return entity.entity_id ]]]"
+          show_icon: false
+          show_name: true
+          name: "[[[return entity.attributes.temperature + '°';]]]"
+          tap_action:
+            action: toggle
+          color: white
+          state:
+            - value: "off"
+              color: black
+              styles:
+                card:
+                  - background: rgba(10,10,10,0.4)
+          styles:
+            card:
+              - border-radius: 50%
+              - width: 45px
+              - height: 45px
+              - background: "[[[
+                  switch(entity.state) {
+                  case 'heat_cool':
+                  return 'rgb(0,128,0)';
+                  break;
+                  case 'heat':
+                  return 'rgb(255,129,0)';
+                  break;
+                  case 'cool':
+                  return 'rgb(43,154,249)';
+                  break;
+                  case 'dry':
+                  return 'rgb(239,189,7)';
+                  break;
+                  case 'fan_only':
+                  return 'rgb(138,138,138)';
+                  break;
+                  default:
+                  return '';
+                  }
+                  ]]]"
+            name:
+              - font-weight: bold
+              - color: white
+
+  media_template:
+    variables:
+      tv: true
+      power_sensor: true
+    show_icon: false
+    show_name: true
+    show_label: true
+    label: |
+      [[[
+        if(variables.tv){
+          if(variables.power_sensor)
+            return entity.state == 'on' ? 'Ligado' : 'Desligado';
+          else
+            return '';
+        }else{
+          return entity.attributes.source;
+        }
+      ]]]
+    styles:
+      card:
+        - height: 66px
+        - padding: 0px
+        - background: rgba(10,10,10,0.6)
+      grid:
+        - grid-template-areas: "'icone n' 'icone l'"
+        - grid-template-columns: " 2fr 4fr "
+        - grid-template-rows: 1fr 1fr
+        - justify-items: start
+      name:
+        - justify-self: start
+        - align-self: end
+        - font-weight: bold
+        - color: white
+        - font-size: 0.9em
+      label:
+        - justify-self: start
+        - align-self: start
+        - padding-top: 4px
+        - font-weight: bold
+        - color: gray
+        - font-size: 0.7em
+      custom_fields:
+        icone:
+          - display: grid
+          - justify-self: center
+          - align-self: center
+    state:
+      - value: "on"
+        styles:
+          card:
+            - background: rgba(255,255,255,0.9)
+          name:
+            - color: black
+    custom_fields:
+      icone:
+        card:
+          type: custom:button-card
+          entity: "[[[ return entity.entity_id ]]]"
+          show_icon: true
+          show_name: false
+          icon: >-
+            [[[ return variables.tv == true ? 'mdi:television' : 'mdi:speaker'
+            ]]]
+          tap_action:
+            action: toggle
+          color: white
+          state:
+            - value: "on"
+              color: black
+              styles:
+                card:
+                  - background: gray
+                icon:
+                  - color: white
+          styles:
+            card:
+              - border-radius: 50%
+              - width: 45px
+              - height: 45px
+              - background: rgba(10,10,10,0.4)
+            icon:
+              - width: 30px
+              - color: white
+
+  cover_template:
+    variables:
+      persiana: true
+    show_icon: false
+    show_name: true
+    show_label: true
+    label: |
+      [[[
+        return entity.attributes.position + '%';
+        if(entity.attributes.position == 0)
+          return 'Fechado';
+      ]]]
+    styles:
+      card:
+        - height: 66px
+        - padding: 0px
+        - background: rgba(10,10,10,0.6)
+      grid:
+        - grid-template-areas: "'icone n' 'icone l'"
+        - grid-template-columns: " 2fr 4fr "
+        - grid-template-rows: 1fr 1fr
+        - justify-items: start
+      name:
+        - justify-self: start
+        - align-self: end
+        - font-weight: bold
+        - color: white
+        - font-size: 0.9em
+      label:
+        - justify-self: start
+        - align-self: start
+        - padding-top: 4px
+        - font-weight: bold
+        - color: gray
+        - font-size: 0.7em
+      custom_fields:
+        icone:
+          - display: grid
+          - justify-self: center
+          - align-self: center
+    state:
+      - operator: template
+        value: >
+          [[[
+            return entity.attributes.position > 0
+          ]]]
+        styles:
+          card:
+            - background: rgba(255,255,255,0.9)
+          name:
+            - color: black
+    custom_fields:
+      icone:
+        card:
+          type: custom:button-card
+          entity: "[[[ return entity.entity_id ]]]"
+          show_icon: true
+          show_name: false
+          icon: >-
+            [[[ 
+              return variables.persiana == true ? 'mdi:blinds-horizontal-closed' : 'mdi:curtains-closed'
+            ]]]
+          tap_action:
+            action: toggle
+          color: white
+          state:
+            - operator: template
+              value: >
+                [[[
+                  return entity.attributes.position > 0
+                ]]]
+              color: black
+              icon: >-
+                [[[ 
+                  return variables.persiana == true ? 'mdi:blinds-horizontal' : 'mdi:curtains'
+                ]]]
+              styles:
+                card:
+                  - background: orange
+                icon:
+                  - color: white
+          styles:
+            card:
+              - border-radius: 50%
+              - width: 45px
+              - height: 45px
+              - background: rgba(10,10,10,0.4)
+            icon:
+              - width: 30px
+              - color: white
+
+  top_label:
+    variables:
+      path: /lovelace-custom/0
+    show_icon: true
+    icon: mdi:chevron-left
+    tap_action:
+      action: navigate
+      navigation_path: "[[[ return variables.path ]]]"
+    styles:
+      card:
+        - "--mdc-ripple-color": white
+        - "--mdc-ripple-press-opacity": 0.5
+        - height: 50px
+        - background: transparent
+        - padding: 0px 0px 0px 20px
+      icon:
+        - width: 100%
+        #- height: 75%
+        - color: white
+      img_cell:
+        - width: 30px
+        #- height: 75%
+        - justify-self: start
+      grid:
+        - grid-template-areas: '"i n"'
+        - grid-template-columns: min-content
+      name:
+        - justify-self: start
+        - align-self: center
+        - font-weight: bold
+        - color: white
+        - font-size: 1.4em
+
+  climate_popup:
+    show_name: false
+    show_icon: false
+    hold_action:
+      action: none
+    styles:
+      card:
+        - height: 500px
+        - padding: 0px
+      grid:
+        - grid-template-areas: >-
+            'ar ar ar ar ar' 'desligar desligar desligar desligar desligar'
+            'tarja i1 i2 i3 i4' 'i5 i5 i5 i6 i6'
+        - grid-template-columns: " min-content 1fr 1fr 1fr 1fr "
+        - grid-template-rows: 3fr 1fr 1fr 1fr
+      custom_fields:
+        desligar:
+          - justify-self: center
+          - align-self: start
+        i1:
+          - justify-self: center
+          - align-self: start
+        i2:
+          - justify-self: center
+          - align-self: start
+        i3:
+          - justify-self: center
+          - align-self: start
+        i4:
+          - justify-self: center
+          - align-self: start
+        i5:
+          - justify-self: center
+          - align-self: start
+        i6:
+          - justify-self: center
+          - align-self: start
+        tarja:
+          - justify-self: center
+          - align-self: start
+          - width: 100%
+          - height: 100%
+          - display: grid
+          - position: absolute
+          - pointer-events: none
+    custom_fields:
+      tarja:
+        card:
+          type: custom:button-card
+          show_icon: false
+          show_name: false
+          styles:
+            card:
+              - "--mdc-ripple-color": green
+              - "--mdc-ripple-press-opacity": 0
+              - height: 58px
+              - box-shadow: none
+              - padding: 0px
+              - margin-top: 0px
+              - border-radius: 25px
+              - background-color: rgba(0,0,0,0.2)
+              - position: absolute
+              - bottom: 96px
+              - left: 0
+      ar:
+        card:
+          type: thermostat
+          entity: "[[[ return entity.entity_id ]]]"
+          card_mod:
+            style: |
+              #info {
+                display: none;
+              }
+              .more-info {
+                display: none;
+              }
+              #controls {
+                padding: 0px;
+              }
+      desligar:
+        card:
+          type: custom:button-card
+          entity: "[[[ return entity.entity_id ]]]"
+          icon: mdi:power
+          show_icon: true
+          show_name: false
+          tap_action:
+            action: toggle
+          hold_action:
+            action: none
+          styles:
+            card:
+              - padding: 0px
+              - border-radius: 50%
+              - height: 60px
+              - width: 60px
+            icon:
+              - height: 66%
+              - width: 66%
+      i1:
+        card:
+          type: custom:button-card
+          icon: mdi:autorenew
+          show_icon: true
+          show_name: false
+          tap_action:
+            action: call-service
+            service: climate.set_hvac_mode
+            service_data:
+              hvac_mode: auto
+              entity_id: "[[[ return entity.entity_id ]]]"
+          hold_action:
+            action: none
+          styles:
+            card:
+              - padding: 0px
+              - border-radius: 50%
+              - height: 48px
+              - width: 48px
+            icon:
+              - height: 66%
+              - width: 66%
+          state:
+            - operator: template
+              value: |
+                [[[
+                  return entity.state == "auto"
+                ]]]
+              styles:
+                icon:
+                  - color: rgb(0,128,0)
+                card:
+                  - background-color: rgba(255,255,255,0.9)
+      i2:
+        card:
+          type: custom:button-card
+          icon: mdi:snowflake
+          show_icon: true
+          show_name: false
+          tap_action:
+            action: call-service
+            service: climate.set_hvac_mode
+            service_data:
+              hvac_mode: cool
+              entity_id: "[[[ return entity.entity_id ]]]"
+          hold_action:
+            action: none
+          styles:
+            card:
+              - padding: 0px
+              - border-radius: 50%
+              - height: 48px
+              - width: 48px
+            icon:
+              - height: 66%
+              - width: 66%
+          state:
+            - operator: template
+              value: |
+                [[[
+                  return entity.state == "cool"
+                ]]]
+              styles:
+                icon:
+                  - color: rgb(43,154,249)
+                card:
+                  - background-color: rgba(255,255,255,0.9)
+      i3:
+        card:
+          type: custom:button-card
+          icon: mdi:water-percent
+          show_icon: true
+          show_name: false
+          tap_action:
+            action: call-service
+            service: climate.set_hvac_mode
+            service_data:
+              hvac_mode: dry
+              entity_id: "[[[ return entity.entity_id ]]]"
+          hold_action:
+            action: none
+          styles:
+            card:
+              - padding: 0px
+              - border-radius: 50%
+              - height: 48px
+              - width: 48px
+            icon:
+              - height: 66%
+              - width: 66%
+          state:
+            - operator: template
+              value: |
+                [[[
+                  return entity.state == "dry"
+                ]]]
+              styles:
+                icon:
+                  - color: rgb(239,189,7)
+                card:
+                  - background-color: rgba(255,255,255,0.9)
+      i4:
+        card:
+          type: custom:button-card
+          icon: mdi:fan
+          show_icon: true
+          show_name: false
+          tap_action:
+            action: call-service
+            service: climate.set_hvac_mode
+            service_data:
+              hvac_mode: fan_only
+              entity_id: "[[[ return entity.entity_id ]]]"
+          hold_action:
+            action: none
+          styles:
+            card:
+              - padding: 0px
+              - border-radius: 50%
+              - height: 48px
+              - width: 48px
+            icon:
+              - height: 66%
+              - width: 66%
+          state:
+            - operator: template
+              value: |
+                [[[
+                  return entity.state == "fan_only"
+                ]]]
+              styles:
+                icon:
+                  - color: rgb(138,138,138)
+                card:
+                  - background-color: rgba(255,255,255,0.9)
+      i5:
+        card:
+          type: custom:button-card
+          icon: >
+            [[[
+              if(entity.attributes.fan_mode == "auto"){
+                return 'mdi:fan-auto'
+              }else if(entity.attributes.fan_mode == "low"){
+                return 'mdi:fan-speed-1'
+              }else if(entity.attributes.fan_mode == "medium"){
+                return 'mdi:fan-speed-2'
+              }else{
+                return 'mdi:fan-speed-3'
+              }
+            ]]]
+          show_icon: true
+          show_name: false
+          tap_action:
+            action: call-service
+            service: climate.set_fan_mode
+            service_data:
+              fan_mode: >
+                [[[
+                  if(entity.attributes.fan_mode == "auto"){
+                    return 'low'
+                  }else if(entity.attributes.fan_mode == "low"){
+                    return 'medium'
+                  }else if(entity.attributes.fan_mode == "medium"){
+                    return 'high'
+                  }else{
+                    return 'auto'
+                  }
+                ]]]
+              entity_id: "[[[ return entity.entity_id ]]]"
+          hold_action:
+            action: none
+          styles:
+            card:
+              - padding: 0px
+              - border-radius: 50%
+              - height: 48px
+              - width: 48px
+            icon:
+              - height: 66%
+              - width: 66%
+      i6:
+        card:
+          type: custom:button-card
+          icon: mdi:swap-horizontal
+          show_icon: true
+          show_name: false
+          tap_action:
+            action: call-service
+            service: climate.set_hvac_mode
+            service_data:
+              hvac_mode: cool
+              entity_id: "[[[ return entity.entity_id ]]]"
+          hold_action:
+            action: none
+          styles:
+            card:
+              - padding: 0px
+              - border-radius: 50%
+              - height: 48px
+              - width: 48px
+            icon:
+              - height: 66%
+              - width: 66%
+
+  receiver_popup:
+    variables:
+      receiver_card: input_number.receiver_card
+      zona1: null
+      zona2: null
+      zona3: null
+      zonaall: null
+      i1_name: appletv
+      i2_name:
+      i3_name:
+      i4_name:
+    triggers_update: all
+    show_name: false
+    show_icon: false
+    hold_action:
+      action: none
+    styles:
+      card:
+        - height: 500px
+        - padding: 0px
+        - "--mdc-ripple-press-opacity": 0
+      grid:
+        - grid-template-areas: >-
+            'z1 z2 z3 zall' 'desligar desligar desligar desligar' 'mute slider
+            slider slider' 'i1 i2 i3 i4'
+        - grid-template-columns: "1fr 1fr 1fr 1fr "
+        - grid-template-rows: 1fr 1fr 1fr 1fr
+      custom_fields:
+        z1:
+          - justify-self: center
+          - align-self: center
+        z2:
+          - justify-self: center
+          - align-self: center
+        z3:
+          - justify-self: center
+          - align-self: center
+        zall:
+          - justify-self: center
+          - align-self: center
+        desligar:
+          - justify-self: center
+          - align-self: center
+        mute:
+          - justify-self: center
+          - align-self: center
+        i1:
+          - justify-self: center
+          - align-self: center
+        i2:
+          - justify-self: center
+          - align-self: center
+        i3:
+          - justify-self: center
+          - align-self: center
+        i4:
+          - justify-self: center
+          - align-self: center
+    custom_fields:
+      z1:
+        card:
+          type: custom:button-card
+          name: Zona 1
+          show_icon: false
+          show_name: true
+          tap_action:
+            action: call-service
+            service: input_number.set_value
+            service_data:
+              value: 1
+              entity_id: "[[[ return variables.receiver_card ]]]"
+          hold_action:
+            action: none
+          styles:
+            card:
+              - padding: 0px
+              - border-radius: 50%
+              - height: 60px
+              - width: 60px
+            icon:
+              - height: 66%
+              - width: 66%
+          state:
+            - operator: template
+              value: |
+                [[[
+                  return states[variables.receiver_card].state == 1
+                ]]]
+              styles:
+                card:
+                  - background-color: blue
+      z2:
+        card:
+          type: custom:button-card
+          name: Zona 2
+          show_icon: false
+          show_name: true
+          tap_action:
+            action: call-service
+            service: input_number.set_value
+            service_data:
+              value: 2
+              entity_id: "[[[ return variables.receiver_card ]]]"
+          hold_action:
+            action: none
+          styles:
+            card:
+              - padding: 0px
+              - border-radius: 50%
+              - height: 60px
+              - width: 60px
+            icon:
+              - height: 66%
+              - width: 66%
+          state:
+            - operator: template
+              value: |
+                [[[
+                  return states[variables.receiver_card].state == 2
+                ]]]
+              styles:
+                card:
+                  - background-color: blue
+      z3:
+        card:
+          type: custom:button-card
+          name: Zona 3
+          show_icon: false
+          show_name: true
+          tap_action:
+            action: call-service
+            service: input_number.set_value
+            service_data:
+              value: 3
+              entity_id: "[[[ return variables.receiver_card ]]]"
+          hold_action:
+            action: none
+          styles:
+            card:
+              - padding: 0px
+              - border-radius: 50%
+              - height: 60px
+              - width: 60px
+            icon:
+              - height: 66%
+              - width: 66%
+          state:
+            - operator: template
+              value: |
+                [[[
+                  return states[variables.receiver_card].state == 3
+                ]]]
+              styles:
+                card:
+                  - background-color: blue
+      zall:
+        card:
+          type: custom:button-card
+          name: Zona all
+          show_icon: false
+          show_name: true
+          tap_action:
+            action: call-service
+            service: input_number.set_value
+            service_data:
+              value: 4
+              entity_id: "[[[ return variables.receiver_card ]]]"
+          hold_action:
+            action: none
+          styles:
+            card:
+              - padding: 0px
+              - border-radius: 50%
+              - height: 60px
+              - width: 60px
+            icon:
+              - height: 66%
+              - width: 66%
+          state:
+            - operator: template
+              value: |
+                [[[
+                  return states[variables.receiver_card].state == 4
+                ]]]
+              styles:
+                card:
+                  - background-color: blue
+      desligar:
+        card:
+          type: custom:button-card
+          entity: |-
+            [[[
+              if(states[variables.receiver_card].state == 1){
+                return variables.zona1
+              }else if(states[variables.receiver_card].state == 2){
+                return variables.zona2
+              }else if(states[variables.receiver_card].state == 3){
+                return variables.zona3
+              }else{
+                return variables.zonaall
+              }
+            ]]]
+          icon: mdi:power
+          show_icon: true
+          show_name: false
+          tap_action:
+            action: toggle
+          hold_action:
+            action: none
+          styles:
+            card:
+              - padding: 0px
+              - border-radius: 50%
+              - height: 60px
+              - width: 60px
+            icon:
+              - height: 66%
+              - width: 66%
+          state:
+            - value: "on"
+              color: black
+              styles:
+                card:
+                  - background: gray
+                icon:
+                  - color: white
+      mute:
+        card:
+          type: custom:button-card
+          icon: mdi:volume-high
+          show_icon: true
+          show_name: false
+          tap_action:
+            action: call-service
+            service: media_player.volume_mute
+            service_data:
+              is_volume_muted: |
+                [[[
+                  if(states[variables.receiver_card].state == 1){
+                    return states[variables.zona1].attributes.is_volume_muted
+                  }else if(states[variables.receiver_card].state == 2){
+                    return states[variables.zona2].attributes.is_volume_muted
+                  }else if(states[variables.receiver_card].state == 3){
+                    return states[variables.zona3].attributes.is_volume_muted
+                  }else if(states[variables.receiver_card].state == 4){
+                    return states[variables.zonaall].attributes.is_volume_muted
+                  }
+                ]]]
+              entity_id: |
+                [[[
+                  if(states[variables.receiver_card].state == 1){
+                    return variables.zona1
+                  }else if(states[variables.receiver_card].state == 2){
+                    return variables.zona2
+                  }else if(states[variables.receiver_card].state == 3){
+                    return variables.zona3
+                  }else if(states[variables.receiver_card].state == 4){
+                    return variables.zonaall
+                  }
+                ]]]
+          hold_action:
+            action: none
+          styles:
+            card:
+              - padding: 0px
+              - border-radius: 50%
+              - height: 60px
+              - width: 60px
+            icon:
+              - height: 66%
+              - width: 66%
+          state:
+            - operator: template
+              value: |
+                [[[
+                  if(states[variables.receiver_card].state == 1){
+                    return states[variables.zona1].attributes.is_volume_muted
+                  }else if(states[variables.receiver_card].state == 2){
+                    return states[variables.zona2].attributes.is_volume_muted
+                  }else if(states[variables.receiver_card].state == 3){
+                    return states[variables.zona3].attributes.is_volume_muted
+                  }else if(states[variables.receiver_card].state == 4){
+                    return states[variables.zonaall].attributes.is_volume_muted
+                  }
+                ]]]
+              icon: mdi:volume-off
+      slider:
+        card:
+          type: custom:mini-media-player
+          entity: |-
+            [[[
+              if(states[variables.receiver_card].state == 1){
+                return variables.zona1
+              }else if(states[variables.receiver_card].state == 2){
+                return variables.zona2
+              }else if(states[variables.receiver_card].state == 3){
+                return variables.zona3
+              }else{
+                return variables.zonaall
+              }
+            ]]]
+          volume_stateless: false
+          group: false
+          toggle_power: false
+          tap_action:
+            action: none
+          hide:
+            info: true
+            power: true
+            source: true
+            icon: true
+            name: true
+            mute: true
+            next: true
+            prev: true
+            play_pause: true
+            play_stop: true
+      i1:
+        card:
+          type: custom:button-card
+          icon: mdi:projector
+          show_icon: true
+          show_name: true
+          tap_action:
+            action: call-service
+            service: media_player.select_source
+            service_data:
+              source: "[[[ return variables.i1_name ]]]"
+              entity_id: |
+                [[[
+                  if(states[variables.receiver_card].state == 1){
+                    return variables.zona1
+                  }else if(states[variables.receiver_card].state == 2){
+                    return variables.zona2
+                  }else if(states[variables.receiver_card].state == 3){
+                    return variables.zona3
+                  }else if(states[variables.receiver_card].state == 4){
+                    return variables.zonaall
+                  }
+                ]]]
+          hold_action:
+            action: none
+          styles:
+            card:
+              - padding: 0px
+              - border-radius: 50%
+              - height: 60px
+              - width: 60px
+            icon:
+              - height: 66%
+              - width: 66%
+          state:
+            - operator: template
+              value: |
+                [[[
+                  if(states[variables.receiver_card].state == 1){
+                    return states[variables.zona1].attributes.source == variables.i1_name;
+                  }else if(states[variables.receiver_card].state == 2){
+                    return states[variables.zona2].attributes.source == variables.i1_name
+                  }else if(states[variables.receiver_card].state == 3){
+                    return states[variables.zona3].attributes.source == variables.i1_name
+                  }else if(states[variables.receiver_card].state == 4){
+                    return states[variables.zonaall].attributes.source == variables.i1_name
+                  }
+                ]]]
+              styles:
+                card:
+                  - background-color: blue
+
+      i2:
+        card:
+          type: custom:button-card
+          icon: mdi:apple
+          show_icon: true
+          show_name: true
+          tap_action:
+            action: call-service
+            service: media_player.select_source
+            service_data:
+              source: "[[[ return variables.i2_name ]]]"
+              entity_id: |
+                [[[
+                  if(states[variables.receiver_card].state == 1){
+                    return variables.zona1
+                  }else if(states[variables.receiver_card].state == 2){
+                    return variables.zona2
+                  }else if(states[variables.receiver_card].state == 3){
+                    return variables.zona3
+                  }else if(states[variables.receiver_card].state == 4){
+                    return variables.zonaall
+                  }
+                ]]]
+          hold_action:
+            action: none
+          styles:
+            card:
+              - padding: 0px
+              - border-radius: 50%
+              - height: 60px
+              - width: 60px
+            icon:
+              - height: 66%
+              - width: 66%
+          state:
+            - operator: template
+              value: |
+                [[[
+                  if(states[variables.receiver_card].state == 1){
+                    return states[variables.zona1].attributes.source == variables.i2_name;
+                  }else if(states[variables.receiver_card].state == 2){
+                    return states[variables.zona2].attributes.source == variables.i2_name
+                  }else if(states[variables.receiver_card].state == 3){
+                    return states[variables.zona3].attributes.source == variables.i2_name
+                  }else if(states[variables.receiver_card].state == 4){
+                    return states[variables.zonaall].attributes.source == variables.i2_name
+                  }
+                ]]]
+              styles:
+                card:
+                  - background-color: blue
+      i3:
+        card:
+          type: custom:button-card
+          icon: mdi:television
+          show_icon: true
+          show_name: true
+          tap_action:
+            action: call-service
+            service: media_player.select_source
+            service_data:
+              source: "[[[ return variables.i3_name ]]]"
+              entity_id: |
+                [[[
+                  if(states[variables.receiver_card].state == 1){
+                    return variables.zona1
+                  }else if(states[variables.receiver_card].state == 2){
+                    return variables.zona2
+                  }else if(states[variables.receiver_card].state == 3){
+                    return variables.zona3
+                  }else if(states[variables.receiver_card].state == 4){
+                    return variables.zonaall
+                  }
+                ]]]
+          hold_action:
+            action: none
+          styles:
+            card:
+              - padding: 0px
+              - border-radius: 50%
+              - height: 60px
+              - width: 60px
+            icon:
+              - height: 66%
+              - width: 66%
+          state:
+            - operator: template
+              value: |
+                [[[
+                  if(states[variables.receiver_card].state == 1){
+                    return states[variables.zona1].attributes.source == variables.i3_name;
+                  }else if(states[variables.receiver_card].state == 2){
+                    return states[variables.zona2].attributes.source == variables.i3_name
+                  }else if(states[variables.receiver_card].state == 3){
+                    return states[variables.zona3].attributes.source == variables.i3_name
+                  }else if(states[variables.receiver_card].state == 4){
+                    return states[variables.zonaall].attributes.source == variables.i3_name
+                  }
+                ]]]
+              styles:
+                card:
+                  - background-color: blue
+      i4:
+        card:
+          type: custom:button-card
+          icon: mdi:microsoft-xbox
+          show_icon: true
+          show_name: true
+          tap_action:
+            action: call-service
+            service: media_player.select_source
+            service_data:
+              source: "[[[ return variables.i4_name ]]]"
+              entity_id: |
+                [[[
+                  if(states[variables.receiver_card].state == 1){
+                    return variables.zona1
+                  }else if(states[variables.receiver_card].state == 2){
+                    return variables.zona2
+                  }else if(states[variables.receiver_card].state == 3){
+                    return variables.zona3
+                  }else if(states[variables.receiver_card].state == 4){
+                    return variables.zonaall
+                  }
+                ]]]
+          hold_action:
+            action: none
+          styles:
+            card:
+              - padding: 0px
+              - border-radius: 50%
+              - height: 60px
+              - width: 60px
+            icon:
+              - height: 66%
+              - width: 66%
+          state:
+            - operator: template
+              value: |
+                [[[
+                  if(states[variables.receiver_card].state == 1){
+                    return states[variables.zona1].attributes.source == variables.i4_name;
+                  }else if(states[variables.receiver_card].state == 2){
+                    return states[variables.zona2].attributes.source == variables.i4_name
+                  }else if(states[variables.receiver_card].state == 3){
+                    return states[variables.zona3].attributes.source == variables.i4_name
+                  }else if(states[variables.receiver_card].state == 4){
+                    return states[variables.zonaall].attributes.source == variables.i4_name
+                  }
+                ]]]
+              styles:
+                card:
+                  - background-color: blue
