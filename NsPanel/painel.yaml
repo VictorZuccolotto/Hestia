@@ -36,13 +36,15 @@ substitutions:
   #Entidades
   node_name: dedopanel
   device_name: NSPanel Quarto Dedo
+  relogio_liga: input_datetime.nsmaleta_liga
+  relogio_desliga: input_datetime.nsmaleta_desliga
   target_thermostat: climate.ar_lucas
   target_lights: light.luz_mesa
-  luz1: light.luz_quarto
-  luz2: switch.luz_corredor
-  luz3: switch.luz_sala
-  luz4: switch.luz_entrada
-  luz5: switch.master
+  luz1: light.virtual_light_1
+  luz2: light.virtual_light_2
+  luz3: light.virtual_light_3
+  luz4: light.virtual_light_4
+  luz5: light.master
   barulho: twobits:d=15,o=6,b=6000:a0
   cena1: switch.virtual_cinema_mode
   cena2: a
@@ -84,8 +86,7 @@ globals:
 
 
 api:
-  encryption:
-    key: "qoZbu5iQZ69jI9Pz6x0ZvccTJ8bwozn2Xuso/GEc1Ps="
+  password: !secret api_pwd
   services:
     # Service to play a song
     - service: play_rtttl
@@ -111,7 +112,6 @@ api:
       then: 
         - script.execute: refresh
 
-http_request:
 
 # A reboot button is always useful
 button:
@@ -142,11 +142,11 @@ time:
         minutes: /1
         then:
           - lambda: |-
-              if(!strcmp(id(current_page2).c_str(),to_string("${pag_luzes}").c_str()) || !strcmp(id(current_page2).c_str(),to_string("${pag_screensaver}").c_str())){
+              if(!strcmp(id(current_page2).c_str(),to_string("${pag_luzes}").c_str()) || !strcmp(id(current_page2).c_str(),to_string("${pag_timeconfig}").c_str()) || !strcmp(id(current_page2).c_str(),to_string("${pag_screensaver}").c_str())){
                 id(disp1).set_component_text_printf("time", "%02i:%02i", id(homeassistant_time).now().hour, id(homeassistant_time).now().minute);
               }
               if(!strcmp(id(current_page2).c_str(),to_string("${pag_screensaver}").c_str())){
-                id(disp1).set_component_text_printf("data", "%s, %02i %s %04i", id(week_day).state.c_str(), id(homeassistant_time).now().day_of_month, id(month).state.c_str(), id(homeassistant_time).now().year);
+                id(disp1).set_component_text_printf("data", "%s, %02i %s", id(week_day).state.c_str(), id(homeassistant_time).now().day_of_month, id(month).state.c_str());
               }
             #id(disp1).set_component_text_printf("data", "%02i/%02i/%04i", id(homeassistant_time).now().day_of_month, id(homeassistant_time).now().month, id(homeassistant_time).now().year);
       - seconds: 0
@@ -197,9 +197,9 @@ binary_sensor:
             service: button.press
             data_template:
               entity_id: $restart
-#chamar servico de reset
+ #chamar servico de reset
             
-########PAGINA AR##########   
+ ########PAGINA AR##########   
   - platform: nextion
     name: $device_name Minus Button
     page_id: $pag_ar
@@ -382,7 +382,7 @@ binary_sensor:
                     entity_id: $target_thermostat
                     hvac_mode: fan_only
  
-########PAGINA Luz2########## 
+ ########PAGINA Luz2########## 
   - platform: nextion
     name: $device_name Brightness Slider
     page_id: $pag_luz2
@@ -411,7 +411,7 @@ binary_sensor:
             service: light.toggle
             data:
               entity_id: $luz2     
-########PAGINA LuzRGB########## 
+ ########PAGINA LuzRGB########## 
   - platform: nextion
     name: $device_name Brightness Slider
     page_id: $pag_luzrgb
@@ -479,7 +479,47 @@ binary_sensor:
             data:
               entity_id: $luz1     
  
-########PAGINA TV##########
+ ########PAGINA TV##########
+  - platform: nextion
+    name: $device_name TV Source 1
+    page_id: $pag_tv
+    component_id: 1
+    internal: true
+    on_press:
+      then:
+      - homeassistant.service:
+            service: media_player.select_source
+            data_template:
+              entity_id: $tv1
+              source: Home
+
+  - platform: nextion
+    name: $device_name TV Source 2
+    page_id: $pag_tv
+    component_id: 2
+    internal: true
+    on_press:
+      then:
+      - homeassistant.service:
+            service: media_player.select_source
+            data_template:
+              entity_id: $tv1
+              source: Home
+
+  - platform: nextion
+    name: $device_name TV Source 3
+    page_id: $pag_tv
+    component_id: 3
+    internal: true
+    on_press:
+      then:
+      - homeassistant.service:
+            service: media_player.select_source
+            data_template:
+              entity_id: $tv1
+              source: Home
+
+
   - platform: nextion
     name: $device_name TV Power Button
     page_id: $pag_tv
@@ -496,7 +536,7 @@ binary_sensor:
     name: $device_name TV Home Button
     page_id: $pag_tv
     internal: true
-    component_id: 5
+    component_id: 10
     on_press:
       then:
       - homeassistant.service:
@@ -509,7 +549,7 @@ binary_sensor:
     name: $device_name TV Back Button
     page_id: $pag_tv
     internal: true
-    component_id: 6
+    component_id: 11
     on_press:
       then:
       - homeassistant.service:
@@ -522,7 +562,7 @@ binary_sensor:
     name: $device_name TV Volume Up Button
     page_id: $pag_tv
     internal: true
-    component_id: 7
+    component_id: 14
     on_press:
       then:
       - homeassistant.service:
@@ -534,7 +574,7 @@ binary_sensor:
     name: $device_name TV Volume Down Button
     page_id: $pag_tv
     internal: true
-    component_id: 8
+    component_id: 13
     on_press:
       then:
       - homeassistant.service:
@@ -543,34 +583,10 @@ binary_sensor:
               entity_id: $tv1
 
   - platform: nextion
-    name: $device_name TV Channel Up Button
-    page_id: $pag_tv
-    internal: true
-    component_id: 9
-    on_press:
-      then:
-      - homeassistant.service:
-            service: media_player.media_next_track
-            data_template:
-              entity_id: $tv1
-
-  - platform: nextion
-    name: $device_name TV Channel Down Button
-    page_id: $pag_tv
-    internal: true
-    component_id: 10
-    on_press:
-      then:
-      - homeassistant.service:
-            service: media_player.media_previous_track
-            data_template:
-              entity_id: $tv1
-
-  - platform: nextion
     name: $device_name TV Select Button
     page_id: $pag_tv
     internal: true
-    component_id: 19
+    component_id: 9
     on_press:
       then:
       - homeassistant.service:
@@ -583,7 +599,7 @@ binary_sensor:
     name: $device_name TV Left Button
     page_id: $pag_tv
     internal: true
-    component_id: 12
+    component_id: 8
     on_press:
       then:
       - homeassistant.service:
@@ -596,7 +612,7 @@ binary_sensor:
     name: $device_name TV Right Button
     page_id: $pag_tv
     internal: true
-    component_id: 11
+    component_id: 6
     on_press:
       then:
       - homeassistant.service:
@@ -609,7 +625,7 @@ binary_sensor:
     name: $device_name TV Up Button
     page_id: $pag_tv
     internal: true
-    component_id: 13
+    component_id: 5
     on_press:
       then:
       - homeassistant.service:
@@ -622,7 +638,7 @@ binary_sensor:
     name: $device_name TV Down Button
     page_id: $pag_tv
     internal: true
-    component_id: 14
+    component_id: 7
     on_press:
       then:
       - homeassistant.service:
@@ -643,47 +659,27 @@ binary_sensor:
             data_template:
               entity_id: $tv1
               source: AppleTv
+          
+  - platform: nextion
+    name: $device_name Volume Slider
+    page_id: $pag_tv
+    component_id: 12
+    internal: true
+    on_release:
+      then:
+        - lambda: !lambda |-
+            id(slider_aux) = true;
+            id(media_music_slider).update();
+        - delay: 50ms
+        - homeassistant.service:
+            service: media_player.volume_set
+            data:
+              entity_id: $spotify 
+              volume_level: !lambda 'return id(media_music_slider).state/100;'
     
-  - platform: nextion
-    name: $device_name TV Netflix Button
-    page_id: $pag_tv
-    internal: true
-    component_id: 16
-    on_press:
-      then:
-      - homeassistant.service:
-            service: media_player.select_source
-            data_template:
-              entity_id: $tv1
-              source: Netflix
 
-  - platform: nextion
-    name: $device_name TV PrimeVideo Button
-    page_id: $pag_tv
-    internal: true
-    component_id: 17
-    on_press:
-      then:
-      - homeassistant.service:
-            service: media_player.select_source
-            data_template:
-              entity_id: $tv1
-              source: Prime Video
-  
-  - platform: nextion
-    name: $device_name TV Spotify Button
-    page_id: $pag_tv
-    internal: true
-    component_id: 18
-    on_press:
-      then:
-      - homeassistant.service:
-            service: media_player.select_source
-            data_template:
-              entity_id: $tv1
-              source: Spotify
 
-########PAGINA Musica########## 
+ ########PAGINA Musica########## 
   - platform: nextion
     name: $device_name Previous Track Button
     page_id: $pag_music
@@ -790,7 +786,7 @@ binary_sensor:
               entity_id: $spotify 
               seek_position: !lambda 'return id(media_progress_slider).state;'
 
-########PAGINA Luzes########## 
+ ########PAGINA Luzes########## 
   - platform: nextion
     name: $device_name Button 1
     page_id: $pag_luzes
@@ -798,6 +794,7 @@ binary_sensor:
     internal: true
     on_release:
       then:
+        - lambda: 'ESP_LOGD("DEDO","TESTE");'
         - homeassistant.service:
             service: light.toggle
             data_template:
@@ -811,7 +808,7 @@ binary_sensor:
     on_release:
       then:
         - homeassistant.service:
-            service: switch.toggle
+            service: homeassistant.toggle
             data:
               entity_id: $luz2
 
@@ -823,7 +820,7 @@ binary_sensor:
     on_release:
       then:
         - homeassistant.service:
-            service: switch.toggle
+            service: homeassistant.toggle
             data:
               entity_id: $luz3
 
@@ -835,7 +832,7 @@ binary_sensor:
     on_release:
       then:
         - homeassistant.service:
-            service: switch.toggle
+            service: homeassistant.toggle
             data:
               entity_id: $luz4
 
@@ -847,11 +844,11 @@ binary_sensor:
     on_release:
       then:
         - homeassistant.service:
-            service: switch.toggle
+            service: homeassistant.toggle
             data:
               entity_id: $luz5
 
-########PAGINA Cenas##########
+ ########PAGINA Cenas##########
   - platform: nextion
     name: $device_name cena Button 1
     page_id: $pag_cenas
@@ -912,7 +909,7 @@ binary_sensor:
             data_template:
               entity_id: $cena5
 
-########PAGINA Dispositivos##########
+ ########PAGINA Dispositivos##########
   - platform: nextion
     name: $device_name dispositivos Button 1
     page_id: $pag_dispositivos
@@ -956,7 +953,7 @@ binary_sensor:
     component_id: 6
     internal: true
 
-########PAGINA config##########
+ ########PAGINA config##########
   - platform: nextion
     name: $device_name config brightness slider
     page_id: $pag_config
@@ -973,13 +970,22 @@ binary_sensor:
             value: !lambda 'return id(display_brightness_slider).state;'
 
   - platform: nextion
-    name: $device_name config sleep screen switch 
+    name: $device_name config sleep screen on button 
     page_id: $pag_config
     component_id: 5
     internal: true
     on_release:
       then:
-        - switch.toggle: sleep_screen
+        - switch.turn_on: sleep_screen
+
+  - platform: nextion
+    name: $device_name config sleep screen off button 
+    page_id: $pag_config
+    component_id: 12
+    internal: true
+    on_release:
+      then:
+        - switch.turn_off: sleep_screen
 
   - platform: nextion
     name: $device_name config restart button
@@ -993,7 +999,17 @@ binary_sensor:
             data_template:
               entity_id: $restart
 
-########PAGINA som##########
+  - platform: nextion
+    name: $device_name config temporizador toggle button
+    page_id: $pag_config
+    component_id: 10
+    internal: true
+    on_release:
+      then:
+        - switch.toggle: temporizador
+
+
+ ########PAGINA som##########
   - platform: nextion
     name: $device_name Toggle Receiver1 Button
     page_id: $pag_som
@@ -1197,23 +1213,179 @@ binary_sensor:
         - delay: 50ms
         - script.execute: refresh
 
-########PAGINA timeConfig##########
+ ########PAGINA timeConfig##########
   - platform: nextion
-    name: $device_name Toggle Receiver1 Button
+    name: TimeConfig Liga relogio
+    page_id: $pag_timeconfig
+    component_id: 3
+    internal: true
+    on_release:
+      then:
+        - lambda: |-
+            id(disp1).send_command_printf("b%i.picc=35", (int)(id(timeConfig_state).state));
+            id(disp1).send_command_printf("b%i.picc2=35",(int)(id(timeConfig_state).state));
+            id(disp1).send_command_printf("TimeConfig.timeState.val=0");
+            id(timeConfig_state).update();
+        - delay: 50ms
+        - script.execute: refresh
+
+  - platform: nextion
+    name: TimeConfig Desliga relogio
+    page_id: $pag_timeconfig
+    component_id: 4
+    internal: true
+    on_release:
+      then:
+        - lambda: |-
+            id(disp1).send_command_printf("b%i.picc=35", (int)(id(timeConfig_state).state));
+            id(disp1).send_command_printf("b%i.picc2=35",(int)(id(timeConfig_state).state));
+            id(disp1).send_command_printf("TimeConfig.timeState.val=1");
+            id(timeConfig_state).update();
+        - delay: 50ms
+        - script.execute: refresh
+
+  - platform: nextion
+    name: TimeConfig horas plus button
+    page_id: $pag_timeconfig
+    component_id: 12
+    internal: true
+    on_release:
+      then:
+        - homeassistant.service:
+            service: input_datetime.set_datetime
+            data:
+              entity_id: !lambda |-
+                if (id(timeConfig_state).state == 0) {
+                  return "${relogio_liga}";
+                } else {
+                  return "${relogio_desliga}";
+                }
+              time: !lambda |-
+                std::string resultado = std::to_string(((int)(id(timeconfig_horas_slider).state)+1)%24) + ":" + std::to_string((int)(id(timeconfig_minutos_slider).state));
+                return resultado;
+        - delay: 50ms
+        - lambda: !lambda |-
+            id(timeconfig_horas_slider).update();
+
+  - platform: nextion
+    name: TimeConfig horas plus button
+    page_id: $pag_timeconfig
+    component_id: 13
+    internal: true
+    on_release:
+      then:
+        - homeassistant.service:
+            service: input_datetime.set_datetime
+            data:
+              entity_id: !lambda |-
+                if (id(timeConfig_state).state == 0) {
+                  return "${relogio_liga}";
+                } else {
+                  return "${relogio_desliga}";
+                }
+              time: !lambda |-
+                std::string resultado = std::to_string(((int)(id(timeconfig_horas_slider).state)-1+24)%24) + ":" + std::to_string((int)(id(timeconfig_minutos_slider).state));
+                return resultado;
+        - delay: 50ms
+        - lambda: !lambda |-
+            id(timeconfig_horas_slider).update();
+
+  - platform: nextion
+    name: TimeConfig horas plus button
+    page_id: $pag_timeconfig
+    component_id: 14
+    internal: true
+    on_release:
+      then:
+        - homeassistant.service:
+            service: input_datetime.set_datetime
+            data:
+              entity_id: !lambda |-
+                if (id(timeConfig_state).state == 0) {
+                  return "${relogio_liga}";
+                } else {
+                  return "${relogio_desliga}";
+                }
+              time: !lambda |-
+                std::string resultado = std::to_string((int)(id(timeconfig_horas_slider).state)) + ":" + std::to_string(((int)(id(timeconfig_minutos_slider).state)+1)%60);
+                return resultado;
+        - delay: 50ms
+        - lambda: !lambda |-
+            id(timeconfig_minutos_slider).update();
+
+  - platform: nextion
+    name: TimeConfig horas plus button
+    page_id: $pag_timeconfig
+    component_id: 15
+    internal: true
+    on_release:
+      then:
+        - homeassistant.service:
+            service: input_datetime.set_datetime
+            data:
+              entity_id: !lambda |-
+                if (id(timeConfig_state).state == 0) {
+                  return "${relogio_liga}";
+                } else {
+                  return "${relogio_desliga}";
+                }
+              time: !lambda |-
+                std::string resultado = std::to_string((int)(id(timeconfig_horas_slider).state)) + ":" + std::to_string(((int)(id(timeconfig_minutos_slider).state)-1+60)%60);
+                return resultado;
+        - delay: 50ms
+        - lambda: !lambda |-
+            id(timeconfig_minutos_slider).update();
+
+  - platform: nextion
+    name: $device_name hora Slider
     page_id: $pag_timeconfig
     component_id: 1
     internal: true
     on_release:
       then:
-        - lambda: |-
-            id(disp1).send_command_printf("b%s.picc=29", id(som_current_receiver).state.c_str());
-            id(disp1).send_command_printf("b%s.picc2=29",id(som_current_receiver).state.c_str());
-            id(disp1).set_component_text_printf("som.receiver", "0");
-            id(som_current_receiver).update();
+        - lambda: !lambda |-
+            id(slider_aux) = true;
+            id(timeconfig_horas_slider).update();
         - delay: 50ms
-        - script.execute: refresh
-    
-########PAGINA persiana########## 
+        - homeassistant.service:
+            service: input_datetime.set_datetime
+            data:
+              entity_id: !lambda |-
+                if (id(timeConfig_state).state == 0) {
+                  return "${relogio_liga}";
+                } else {
+                  return "${relogio_desliga}";
+                }
+              time: !lambda |-
+                std::string resultado = std::to_string((int)(id(timeconfig_horas_slider).state)) + ":" + std::to_string((int)(id(timeconfig_minutos_slider).state));
+                return resultado;
+
+  - platform: nextion
+    name: $device_name minuto Slider
+    page_id: $pag_timeconfig
+    component_id: 2
+    internal: true
+    on_release:
+      then:
+        - lambda: !lambda |-
+            id(slider_aux) = true;
+            id(timeconfig_minutos_slider).update();
+        - delay: 50ms
+        - homeassistant.service:
+            service: input_datetime.set_datetime
+            data:
+              entity_id: !lambda |-
+                if (id(timeConfig_state).state == 0) {
+                  return "${relogio_liga}";
+                } else {
+                  return "${relogio_desliga}";
+                }
+              time: !lambda |-
+                std::string resultado = std::to_string((int)(id(timeconfig_horas_slider).state)) + ":" + std::to_string((int)(id(timeconfig_minutos_slider).state));
+                return resultado;
+
+   #     return id(timeconfig_horas_slider).state;
+ ########PAGINA persiana########## 
   - platform: nextion
     name: $device_name persiana Slider
     page_id: $pag_persiana
@@ -1284,7 +1456,7 @@ sensor:
       then:
         - lambda: |-
             if(!strcmp(id(current_page2).c_str(),to_string("${pag_luzes}").c_str()) || !strcmp(id(current_page2).c_str(),to_string("${pag_screensaver}").c_str())){
-                id(disp1).set_component_text_printf("temp", "%.1f""°C", x);
+                id(disp1).set_component_text_printf("temp", "%.f""°", x);
               }
 
   - platform: resistance
@@ -1305,7 +1477,7 @@ sensor:
     name: "Nextion_isConnected"
     component_name: Config.brightsleep
     
-########Sensor painel##########
+ ########Sensor painel##########
   - platform: nextion
     id: display_brightness
     component_name: Config.brightness
@@ -1315,7 +1487,92 @@ sensor:
     component_name: brightSlider
 
 
-########Sensor ar##########
+ ########Sensor timeConfig##########
+  - platform: nextion
+    id: timeConfig_state
+    component_name: TimeConfig.timeState
+
+  - platform: homeassistant
+    id: relogio_liga_hora
+    entity_id: $relogio_liga
+    attribute: hour
+    on_value:
+      then:
+        - lambda: |-
+            if(id(slider_aux) == false){
+              if(!strcmp(id(current_page2).c_str(),to_string("${pag_timeconfig}").c_str())){
+                if(id(timeConfig_state).state == 0){
+                  id(disp1).send_command_printf("horasSlider.val=%i", (int)(x));
+                  id(disp1).set_component_text_printf("t0", "%02i", (int)x);
+                }
+              }
+            }
+        - delay: 100ms
+        - lambda: 'id(slider_aux) = false;'
+
+  - platform: homeassistant
+    id: relogio_liga_minuto
+    entity_id: $relogio_liga
+    attribute: minute
+    on_value:
+      then:
+        - lambda: |-
+            if(id(slider_aux) == false){
+              if(!strcmp(id(current_page2).c_str(),to_string("${pag_timeconfig}").c_str())){
+                if(id(timeConfig_state).state == 0){
+                  id(disp1).send_command_printf("minutosSlider.val=%i", (int)(x));
+                  id(disp1).set_component_text_printf("t1", "%02i", (int)x);
+                }
+              }
+            }
+        - delay: 100ms
+        - lambda: 'id(slider_aux) = false;'
+
+  - platform: homeassistant
+    id: relogio_desliga_hora
+    entity_id: $relogio_desliga
+    attribute: hour
+    on_value:
+      then:
+        - lambda: |-
+            if(id(slider_aux) == false){
+              if(!strcmp(id(current_page2).c_str(),to_string("${pag_timeconfig}").c_str())){
+                if(id(timeConfig_state).state == 1){
+                  id(disp1).send_command_printf("horasSlider.val=%i", (int)(x));
+                  id(disp1).set_component_text_printf("t0", "%02i", (int)x);
+                }
+              }
+            }
+        - delay: 100ms
+        - lambda: 'id(slider_aux) = false;'
+
+  - platform: homeassistant
+    id: relogio_desliga_minuto
+    entity_id: $relogio_desliga
+    attribute: minute
+    on_value:
+      then:
+        - lambda: |-
+            if(id(slider_aux) == false){
+              if(!strcmp(id(current_page2).c_str(),to_string("${pag_timeconfig}").c_str())){
+                if(id(timeConfig_state).state == 1){
+                  id(disp1).send_command_printf("minutosSlider.val=%i", (int)(x));
+                  id(disp1).set_component_text_printf("t1", "%02i", (int)x);
+                }
+              }
+            }
+        - delay: 100ms
+        - lambda: 'id(slider_aux) = false;'
+
+  - platform: nextion
+    id: timeconfig_horas_slider
+    component_name: horasSlider
+
+  - platform: nextion
+    id: timeconfig_minutos_slider
+    component_name: minutosSlider
+
+ ########Sensor ar##########
   - platform: homeassistant
     id: target_temperature
     entity_id: $target_thermostat
@@ -1328,7 +1585,7 @@ sensor:
                 id(disp1).set_component_text_printf("targetTemp", "--");
                 id(disp1).send_command_printf("vis t0,0");
               }else{
-                id(disp1).set_component_text_printf("targetTemp", "%i", (int)x);
+                id(disp1).set_component_text_printf("targetTemp", "%i""°", (int)x);
                 id(disp1).send_command_printf("vis t0,1");
               }
             }
@@ -1342,11 +1599,11 @@ sensor:
       then:
         - lambda: |-
             if(!strcmp(id(current_page2).c_str(),to_string("${pag_ar}").c_str())){
-              id(disp1).set_component_text_printf("currentTemp", "%i""°C", (int)x);
+              id(disp1).set_component_text_printf("currentTemp", "%i""°", (int)x);
             }
 
 
-########Sensor Luz2##########
+ ########Sensor Luz2##########
   - platform: homeassistant
     id: current_brightness2
     entity_id: $luz2 #luz RGB
@@ -1598,11 +1855,11 @@ text_sensor:
     filters:
     - map:
       - 1 -> Domingo
-      - 2 -> Segunda
-      - 3 -> Terça
-      - 4 -> Quarta
-      - 5 -> Quinta
-      - 6 -> Sexta
+      - 2 -> Segunda-feira
+      - 3 -> Terça-feira
+      - 4 -> Quarta-feira
+      - 5 -> Quinta-feira
+      - 6 -> Sexta-feira
       - 7 -> Sábado
 
   - platform: template
@@ -1647,9 +1904,8 @@ text_sensor:
     id: media_state
     entity_id: $spotify
     filters:
-#        ESP_LOGD("VAI TOMA NO CU", "%i",!strcmp(x.c_str(),"idle"));
     - lambda: |-
-        if(!strcmp(x.c_str(),"idle")){
+        if(!(!strcmp(x.c_str(),"playing") || !strcmp(x.c_str(),"paused"))){
           id(media_duration).publish_state(0.0);
           id(media_position).publish_state(0.0);
         }
@@ -1731,6 +1987,18 @@ text_sensor:
             if(!strcmp(id(current_page2).c_str(),to_string("${pag_music}").c_str())){
                 id(disp1).set_component_text_printf("titulo", "%s", x.c_str());
             }
+
+########TxTSensor Tv##########
+  - platform: homeassistant
+    id: tv_source
+    entity_id: $tv1
+    attribute: source
+    on_value:
+      then:
+        - lambda: |-
+            if(!strcmp(id(current_page2).c_str(),to_string("${pag_tv}").c_str())){
+            }
+# a fazer
 
 ########TxTSensor Som##########
 
@@ -2072,13 +2340,19 @@ text_sensor:
               id(disp1).send_command_printf("fan.picc=11");
               id(disp1).send_command_printf("fan.picc2=11");
               if(x=="0"){
-                id(disp1).set_component_text_printf("targetTemp", "--");
+                id(disp1).send_command_printf("vis fanSpeed,0");
                 id(disp1).send_command_printf("vis t0,0");
+                id(disp1).set_component_text_printf("targetTemp", "--");
+                id(disp1).send_command_printf("power.picc=11");
+                id(disp1).send_command_printf("power.picc2=11");
               }else{
-                id(disp1).set_component_text_printf("targetTemp", "%i", (int)id(target_temperature).state);
+                id(disp1).send_command_printf("vis fanSpeed,1");
                 id(disp1).send_command_printf("vis t0,1");
+                id(disp1).set_component_text_printf("targetTemp", "%i""°", (int)id(target_temperature).state);
                 id(disp1).send_command_printf("%s.picc=12",x.c_str());
                 id(disp1).send_command_printf("%s.picc2=12",x.c_str());
+                id(disp1).send_command_printf("power.picc=12");
+                id(disp1).send_command_printf("power.picc2=12");
               }
             }
             if(!strcmp(id(current_page2).c_str(),to_string("${pag_dispositivos}").c_str())){
@@ -2171,7 +2445,6 @@ switch:
     name: $device_name Nextion inited
     id: nextion_init
     entity_category: config
-    restore_state: true
     assumed_state: false
     optimistic: true
 
@@ -2179,7 +2452,7 @@ switch:
     name: $device_name sleep_screen
     id: sleep_screen
     entity_category: config
-    restore_state: true
+    restore_mode: RESTORE_DEFAULT_OFF 
     assumed_state: false
     optimistic: true
     on_turn_on:
@@ -2188,6 +2461,8 @@ switch:
           if(!strcmp(id(current_page2).c_str(),to_string("${pag_config}").c_str())){
             id(disp1).send_command_printf("b0.picc=27");
             id(disp1).send_command_printf("b0.picc2=27");
+            id(disp1).send_command_printf("b1.picc=26");
+            id(disp1).send_command_printf("b1.picc2=26");
           }        
     on_turn_off:
       - lambda: |-
@@ -2195,6 +2470,32 @@ switch:
           if(!strcmp(id(current_page2).c_str(),to_string("${pag_config}").c_str())){
             id(disp1).send_command_printf("b0.picc=26");
             id(disp1).send_command_printf("b0.picc2=26");
+            id(disp1).send_command_printf("b1.picc=27");
+            id(disp1).send_command_printf("b1.picc2=27");
+          }         
+
+  - platform: template
+    name: $device_name temporizador
+    id: temporizador
+    entity_category: config
+    restore_mode: RESTORE_DEFAULT_ON 
+    assumed_state: false
+    optimistic: true
+    on_turn_on:
+      - lambda: |-
+          if(!strcmp(id(current_page2).c_str(),to_string("${pag_config}").c_str())){
+            id(disp1).send_command_printf("b2.picc=27");
+            id(disp1).send_command_printf("b2.picc2=27");
+            id(disp1).send_command_printf("b2info.picc=27");
+            id(disp1).send_command_printf("b2info.picc2=27");
+          }        
+    on_turn_off:
+      - lambda: |-
+          if(!strcmp(id(current_page2).c_str(),to_string("${pag_config}").c_str())){
+            id(disp1).send_command_printf("b2.picc=26");
+            id(disp1).send_command_printf("b2.picc2=26");
+            id(disp1).send_command_printf("b2info.picc=26");
+            id(disp1).send_command_printf("b2info.picc2=26");
           }         
 
   # Pin 4 always needs to be on to power up the display
@@ -2253,7 +2554,7 @@ script:
           }
 
           if (!strcmp(id(current_page2).c_str(),to_string("${pag_ar}").c_str())){// Ar page
-            id(disp1).set_component_text_printf("currentTemp", "%i""°C", (int)id(current_temperature).state);
+            id(disp1).set_component_text_printf("currentTemp", "%i""°", (int)id(current_temperature).state);
             id(disp1).send_command_printf("auto.picc=11");
             id(disp1).send_command_printf("auto.picc2=11");
             id(disp1).send_command_printf("cool.picc=11");
@@ -2263,11 +2564,17 @@ script:
             id(disp1).send_command_printf("fan.picc=11");
             id(disp1).send_command_printf("fan.picc2=11");
             if (id(current_mode).state == "0") {
-              id(disp1).set_component_text_printf("targetTemp", "--");
+              id(disp1).send_command_printf("vis fanSpeed,0");
               id(disp1).send_command_printf("vis t0,0");
+              id(disp1).set_component_text_printf("targetTemp", "--");
+              id(disp1).send_command_printf("power.picc=11");
+              id(disp1).send_command_printf("power.picc2=11");
             } else {
-              id(disp1).set_component_text_printf("targetTemp", "%i", (int)id(target_temperature).state);
+              id(disp1).send_command_printf("vis fanSpeed,1");
               id(disp1).send_command_printf("vis t0,1");
+              id(disp1).set_component_text_printf("targetTemp", "%i""°", (int)id(target_temperature).state);
+              id(disp1).send_command_printf("power.picc=12");
+              id(disp1).send_command_printf("power.picc2=12");
               id(disp1).send_command_printf("%s.picc=12",id(current_mode).state.c_str());
               id(disp1).send_command_printf("%s.picc2=12",id(current_mode).state.c_str());
             }
@@ -2390,9 +2697,24 @@ script:
             if(id(sleep_screen).state){
               id(disp1).send_command_printf("b0.picc=27");
               id(disp1).send_command_printf("b0.picc2=27");
+              id(disp1).send_command_printf("b1.picc=26");
+              id(disp1).send_command_printf("b1.picc2=26");
             }else{
               id(disp1).send_command_printf("b0.picc=26");
               id(disp1).send_command_printf("b0.picc2=26");
+              id(disp1).send_command_printf("b1.picc=27");
+              id(disp1).send_command_printf("b1.picc2=27");
+            }
+            if(id(temporizador).state){
+              id(disp1).send_command_printf("b2.picc=27");
+              id(disp1).send_command_printf("b2.picc2=27");
+              id(disp1).send_command_printf("b2info.picc=27");
+              id(disp1).send_command_printf("b2info.picc2=27");
+            }else{
+              id(disp1).send_command_printf("b2.picc=26");
+              id(disp1).send_command_printf("b2.picc2=26");
+              id(disp1).send_command_printf("b2info.picc=26");
+              id(disp1).send_command_printf("b2info.picc2=26");
             }
           }
 
@@ -2420,14 +2742,35 @@ script:
   
 
             id(disp1).set_component_text_printf("time", "%02i:%02i", id(homeassistant_time).now().hour, id(homeassistant_time).now().minute);
-            id(disp1).set_component_text_printf("temp", "%.1f""°C", id(temperature).state);
+            id(disp1).set_component_text_printf("temp", "%.f""°", id(temperature).state);
           }
           
           if(!strcmp(id(current_page2).c_str(),to_string("${pag_screensaver}").c_str())){
             id(disp1).set_component_text_printf("time", "%02i:%02i", id(homeassistant_time).now().hour, id(homeassistant_time).now().minute);
-            id(disp1).set_component_text_printf("temp", "%.1f""°C", id(temperature).state);
-            id(disp1).set_component_text_printf("data", "%s, %02i %s %04i", id(week_day).state.c_str(), id(homeassistant_time).now().day_of_month, id(month).state.c_str(), id(homeassistant_time).now().year);
+            id(disp1).set_component_text_printf("temp", "%.f""°", id(temperature).state);
+            id(disp1).set_component_text_printf("data", "%s, %02i %s", id(week_day).state.c_str(), id(homeassistant_time).now().day_of_month, id(month).state.c_str());
           }
+
+          if (!strcmp(id(current_page2).c_str(),to_string("${pag_timeconfig}").c_str())){
+            id(disp1).send_command_printf("b%i.picc=36", (int) id(timeConfig_state).state);
+            id(disp1).send_command_printf("b%i.picc2=36",(int) id(timeConfig_state).state);
+            if(id(timeConfig_state).state == 0){
+              id(disp1).send_command_printf("horasSlider.val=%i", (int)(id(relogio_liga_hora).state));
+              id(disp1).set_component_text_printf("t0", "%02i", (int)(id(relogio_liga_hora).state));
+              id(disp1).send_command_printf("minutosSlider.val=%i", (int)(id(relogio_liga_minuto).state));
+              id(disp1).set_component_text_printf("t1", "%02i", (int)(id(relogio_liga_minuto).state));
+            } else {
+              id(disp1).send_command_printf("horasSlider.val=%i", (int)(id(relogio_desliga_hora).state));
+              id(disp1).set_component_text_printf("t0", "%02i", (int)(id(relogio_desliga_hora).state));
+              id(disp1).send_command_printf("minutosSlider.val=%i", (int)(id(relogio_desliga_minuto).state));
+              id(disp1).set_component_text_printf("t1", "%02i", (int)(id(relogio_desliga_minuto).state));
+            }
+            id(disp1).set_component_text_printf("time", "%02i:%02i", id(homeassistant_time).now().hour, id(homeassistant_time).now().minute);
+            id(timeconfig_horas_slider).update();
+            id(timeconfig_minutos_slider).update();
+          }
+
+
 # id(disp1).set_component_text_printf("data", "%02i/%02i/%04i", id(homeassistant_time).now().day_of_month, id(homeassistant_time).now().month, id(homeassistant_time).now().year);
 
 # Configure the internal bleeper
@@ -2468,6 +2811,7 @@ display:
             id(week_day).publish_state(to_string(id(homeassistant_time).now().day_of_week));
             id(month).publish_state(to_string(id(homeassistant_time).now().month));
             id(som_current_receiver).update();
+            id(timeConfig_state).update();
             if(id(sleep_screen).state){
               id(disp1).send_command_printf("Config.brightsleep.val=1");
             }else{
