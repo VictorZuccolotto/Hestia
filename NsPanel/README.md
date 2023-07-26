@@ -3,10 +3,11 @@
 ## A fazeres
 - [ ] Pagina Tv - Sources
 - [ ] Pagina Timeconfig - Botão Salvar
-- [ ] Reutilizar paginas de LuzRGB, Luz Dimmer, Ar condicionado para multiplas entidades
-- [ ] Pgina Luz Dimmer - porcentagem de brilho
+- [x] Reutilizar paginas de LuzRGB, Luz Dimmer, Ar condicionado para multiplas entidades
+- [ ] Pagina Luz Dimmer - porcentagem de brilho
 - [ ] Pagina cortinas
 
+## --
 - [Painel base](#painel_base)
 - [Luzes](#Luzes)
     - [Adicionar luzes](#add_luzes)

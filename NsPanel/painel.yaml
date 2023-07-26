@@ -1,8 +1,6 @@
 esphome:
   name: dedopanel
   comment: NSPanel Quarto Dedo
-  includes:
-    - colorwheel.h
   platformio_options:
     build_flags: 
       - -DCONFIG_ARDUINO_LOOP_STACK_SIZE=32768
@@ -39,6 +37,8 @@ substitutions:
   relogio_liga: input_datetime.nsmaleta_liga
   relogio_desliga: input_datetime.nsmaleta_desliga
   target_thermostat: climate.ar_lucas
+  ar1: climate.ar_lucas
+  ar2: climate.ar_teste_2
   target_lights: light.luz_mesa
   luz1: light.virtual_light_1
   luz2: light.virtual_light_2
@@ -70,7 +70,7 @@ substitutions:
   pag_tv: "6"
   pag_config: "8"
   pag_screensaver: "7"
-  pag_luz2: "10"
+  pag_luzdimmer: "10"
   pag_som: "12"
   pag_timeconfig: "11"
   pag_persiana: "13"
@@ -149,16 +149,6 @@ time:
                 id(disp1).set_component_text_printf("data", "%s, %02i %s", id(week_day).state.c_str(), id(homeassistant_time).now().day_of_month, id(month).state.c_str());
               }
             #id(disp1).set_component_text_printf("data", "%02i/%02i/%04i", id(homeassistant_time).now().day_of_month, id(homeassistant_time).now().month, id(homeassistant_time).now().year);
-      - seconds: 0
-        minutes: 0
-        hours: 22
-        then:
-          - lambda: 'id(sleep_screen).publish_state(false);'
-      - seconds: 0
-        minutes: 0
-        hours: 6
-        then:
-          - lambda: 'id(sleep_screen).publish_state(true);'
     on_time_sync:
         then:
           - wait_until:
@@ -211,9 +201,18 @@ binary_sensor:
         - homeassistant.service:
             service: climate.set_temperature
             data_template:
-              entity_id: $target_thermostat
-              temperature: '{{ (state_attr("$target_thermostat", "temperature")|round(0) == (state_attr("$target_thermostat", "min_temp"))) |iif((state_attr("$target_thermostat", "temperature")|round(0)), (state_attr("$target_thermostat", "temperature")|round(0)) - 1) }}'
-              #temperature: '{{ (state_attr("$target_thermostat", "temperature")|round(0)) - 1 }}'
+              entity_id: !lambda |-
+                if ((int)(id(current_ar).state) == 1) {
+                  return "${ar1}";
+                }else {
+                  return "${ar2}";
+                }
+              temperature: !lambda |-
+                if ((int)(id(current_ar).state) == 1) {
+                  return "{{ (state_attr(\"$ar1\", \"temperature\")|round(0) == (state_attr(\"$ar1\", \"min_temp\"))) |iif((state_attr(\"$ar1\", \"temperature\")|round(0)), (state_attr(\"$ar1\", \"temperature\")|round(0)) - 1) }}";
+                }else {
+                  return "{{ (state_attr(\"$ar2\", \"temperature\")|round(0) == (state_attr(\"$ar2\", \"min_temp\"))) |iif((state_attr(\"$ar2\", \"temperature\")|round(0)), (state_attr(\"$ar2\", \"temperature\")|round(0)) - 1) }}";
+                }
     
   - platform: nextion
     name: $device_name Plus Button
@@ -226,9 +225,18 @@ binary_sensor:
         - homeassistant.service:
             service: climate.set_temperature
             data_template:
-              entity_id: $target_thermostat
-              temperature: '{{ (state_attr("$target_thermostat", "temperature")|round(0) == (state_attr("$target_thermostat", "max_temp"))) |iif((state_attr("$target_thermostat", "temperature")|round(0)), (state_attr("$target_thermostat", "temperature")|round(0)) + 1) }}'
-              #temperature: '{{ (state_attr("$target_thermostat", "temperature")|round(0)) + 1 }}'
+              entity_id: !lambda |-
+                if ((int)(id(current_ar).state) == 1) {
+                  return "${ar1}";
+                }else {
+                  return "${ar2}";
+                }
+              temperature: !lambda |-
+                if ((int)(id(current_ar).state) == 1) {
+                  return "{{ (state_attr(\"$ar1\", \"temperature\")|round(0) == (state_attr(\"$ar1\", \"max_temp\"))) |iif((state_attr(\"$ar1\", \"temperature\")|round(0)), (state_attr(\"$ar1\", \"temperature\")|round(0)) + 1) }}";
+                }else {
+                  return "{{ (state_attr(\"$ar2\", \"temperature\")|round(0) == (state_attr(\"$ar2\", \"max_temp\"))) |iif((state_attr(\"$ar1\", \"temperature\")|round(0)), (state_attr(\"$ar2\", \"temperature\")|round(0)) + 1) }}";
+                }
     
   - platform: nextion
     name: $device_name Fan Speed Button
@@ -241,23 +249,47 @@ binary_sensor:
         - homeassistant.service:
             service: climate.set_fan_mode
             data:
-              entity_id: $target_thermostat
+              entity_id: !lambda |-
+                if ((int)(id(current_ar).state) == 1) {
+                  return "${ar1}";
+                }else {
+                  return "${ar2}";
+                }
               fan_mode: !lambda |-
-                if (id(fan_speed).state == "1") {
-                  id(fan_speed).state = "2";
-                  return "medium";
-                } else if (id(fan_speed).state == "2") {
-                  id(fan_speed).state = "3";
-                  return "high";
-                } else if (id(fan_speed).state == "3") {
-                  id(fan_speed).state = "4";
-                  return "auto";
-                } else if (id(fan_speed).state == "4") {
-                  id(fan_speed).state = "1";
-                  return "low";
-                } else {
-                  id(fan_speed).state = "4";
-                  return "auto";
+                if ((int)(id(current_ar).state) == 1) {
+                  if (id(ar1_fan_speed).state == "1") {
+                    id(ar1_fan_speed).state = "2";
+                    return "medium";
+                  } else if (id(ar1_fan_speed).state == "2") {
+                    id(ar1_fan_speed).state = "3";
+                    return "high";
+                  } else if (id(ar1_fan_speed).state == "3") {
+                    id(ar1_fan_speed).state = "4";
+                    return "auto";
+                  } else if (id(ar1_fan_speed).state == "4") {
+                    id(ar1_fan_speed).state = "1";
+                    return "low";
+                  } else {
+                    id(ar1_fan_speed).state = "4";
+                    return "auto";
+                  }
+                } else{
+                  if (id(ar2_fan_speed).state == "1") {
+                    id(ar2_fan_speed).state = "2";
+                    return "medium";
+                  } else if (id(ar2_fan_speed).state == "2") {
+                    id(ar2_fan_speed).state = "3";
+                    return "high";
+                  } else if (id(ar2_fan_speed).state == "3") {
+                    id(ar2_fan_speed).state = "4";
+                    return "auto";
+                  } else if (id(ar2_fan_speed).state == "4") {
+                    id(ar2_fan_speed).state = "1";
+                    return "low";
+                  } else {
+                    id(ar2_fan_speed).state = "4";
+                    return "auto";
+                  }
                 }
     
   - platform: nextion
@@ -270,17 +302,32 @@ binary_sensor:
         - rtttl.play: $barulho
         - if:
             condition:
-              lambda: 'return id(current_mode).state == "0";'
+              lambda: !lambda |-
+                if ((int)(id(current_ar).state) == 1) {
+                  return id(ar1_current_mode).state == "0";
+                }else{
+                  return id(ar2_current_mode).state == "0";
+                }
             then:
               - homeassistant.service:
                   service: climate.turn_on
                   data_template:
-                    entity_id: $target_thermostat
+                    entity_id: !lambda |-
+                      if ((int)(id(current_ar).state) == 1) {
+                        return "${ar1}";
+                      }else {
+                        return "${ar2}";
+                      }
             else:
               - homeassistant.service:
                   service: climate.turn_off
                   data_template:
-                    entity_id: $target_thermostat
+                    entity_id: !lambda |-
+                      if ((int)(id(current_ar).state) == 1) {
+                        return "${ar1}";
+                      }else {
+                        return "${ar2}";
+                      }
    
   - platform: nextion
     name: $device_name Auto Button
@@ -291,20 +338,35 @@ binary_sensor:
       then:
         - if:
             condition:
-              lambda: 'return id(current_mode).state == "auto";'
+              lambda: !lambda |-
+                if ((int)(id(current_ar).state) == 1) {
+                  return id(ar1_current_mode).state == "auto";
+                }else{
+                  return id(ar2_current_mode).state == "auto";
+                }
             then:
               - rtttl.play: $barulho
               - homeassistant.service:
                   service: climate.set_hvac_mode
                   data:
-                    entity_id: $target_thermostat
+                    entity_id: !lambda |-
+                      if ((int)(id(current_ar).state) == 1) {
+                        return "${ar1}";
+                      }else {
+                        return "${ar2}";
+                      }
                     hvac_mode: 'off'
             else:
               - rtttl.play: $barulho
               - homeassistant.service:
                   service: climate.set_hvac_mode
                   data:
-                    entity_id: $target_thermostat
+                    entity_id: !lambda |-
+                      if ((int)(id(current_ar).state) == 1) {
+                        return "${ar1}";
+                      }else {
+                        return "${ar2}";
+                      }
                     hvac_mode: heat_cool
     
   - platform: nextion
@@ -316,20 +378,35 @@ binary_sensor:
       then:
         - if:
             condition:
-              lambda: 'return id(current_mode).state == "cool";'
+              lambda: !lambda |-
+                if ((int)(id(current_ar).state) == 1) {
+                  return id(ar1_current_mode).state == "cool";
+                }else{
+                  return id(ar2_current_mode).state == "cool";
+                }
             then:
               - rtttl.play: $barulho
               - homeassistant.service:
                   service: climate.set_hvac_mode
                   data:
-                    entity_id: $target_thermostat
+                    entity_id: !lambda |-
+                      if ((int)(id(current_ar).state) == 1) {
+                        return "${ar1}";
+                      }else {
+                        return "${ar2}";
+                      }
                     hvac_mode: 'off'
             else:
               - rtttl.play: $barulho
               - homeassistant.service:
                   service: climate.set_hvac_mode
                   data:
-                    entity_id: $target_thermostat
+                    entity_id: !lambda |-
+                      if ((int)(id(current_ar).state) == 1) {
+                        return "${ar1}";
+                      }else {
+                        return "${ar2}";
+                      }
                     hvac_mode: cool
     
   - platform: nextion
@@ -341,20 +418,35 @@ binary_sensor:
       then:
         - if:
             condition:
-              lambda: 'return id(current_mode).state == "humidity";'
+              lambda: !lambda |-
+                if ((int)(id(current_ar).state) == 1) {
+                  return id(ar1_current_mode).state == "humidity";
+                }else{
+                  return id(ar2_current_mode).state == "humidity";
+                }
             then:
               - rtttl.play: $barulho
               - homeassistant.service:
                   service: climate.set_hvac_mode
                   data:
-                    entity_id: $target_thermostat
+                    entity_id: !lambda |-
+                      if ((int)(id(current_ar).state) == 1) {
+                        return "${ar1}";
+                      }else {
+                        return "${ar2}";
+                      }
                     hvac_mode: 'off'
             else:
               - rtttl.play: $barulho
               - homeassistant.service:
                   service: climate.set_hvac_mode
                   data:
-                    entity_id: $target_thermostat
+                    entity_id: !lambda |-
+                      if ((int)(id(current_ar).state) == 1) {
+                        return "${ar1}";
+                      }else {
+                        return "${ar2}";
+                      }
                     hvac_mode: dry
     
   - platform: nextion
@@ -366,26 +458,41 @@ binary_sensor:
       then:
         - if:
             condition:
-              lambda: 'return id(current_mode).state == "fan";'
+              lambda: !lambda |-
+                if ((int)(id(current_ar).state) == 1) {
+                  return id(ar1_current_mode).state == "fan";
+                }else{
+                  return id(ar2_current_mode).state == "fan";
+                }
             then:
               - rtttl.play: $barulho
               - homeassistant.service:
                   service: climate.set_hvac_mode
                   data:
-                    entity_id: $target_thermostat
+                    entity_id: !lambda |-
+                      if ((int)(id(current_ar).state) == 1) {
+                        return "${ar1}";
+                      }else {
+                        return "${ar2}";
+                      }
                     hvac_mode: 'off'
             else:
               - rtttl.play: $barulho
               - homeassistant.service:
                   service: climate.set_hvac_mode
                   data:
-                    entity_id: $target_thermostat
+                    entity_id: !lambda |-
+                      if ((int)(id(current_ar).state) == 1) {
+                        return "${ar1}";
+                      }else {
+                        return "${ar2}";
+                      }
                     hvac_mode: fan_only
  
- ########PAGINA Luz2########## 
+ ########PAGINA LuzDimmer########## 
   - platform: nextion
     name: $device_name Brightness Slider
-    page_id: $pag_luz2
+    page_id: $pag_luzdimmer
     component_id: 1
     internal: true
     on_release:
@@ -397,12 +504,21 @@ binary_sensor:
         - homeassistant.service:
             service: light.turn_on
             data:
-              entity_id: $luz2 #luz RGB
+              entity_id: !lambda |-
+                if ((int)(id(current_dimmer).state) == 1) {
+                  return "${luz1}";
+                }else if ((int)(id(current_dimmer).state) == 2) {
+                  return "${luz2}";
+                }else if ((int)(id(current_dimmer).state) == 3) {
+                  return "${luz3}";
+                }else {
+                  return "${luz4}";
+                }
               brightness: !lambda 'return (int)id(brightness_value2).state;'
 
   - platform: nextion
     name: $device_name luz2 Button 1
-    page_id: $pag_luz2
+    page_id: $pag_luzdimmer
     component_id: 6
     internal: true
     on_release:
@@ -410,7 +526,17 @@ binary_sensor:
         - homeassistant.service:
             service: light.toggle
             data:
-              entity_id: $luz2     
+              entity_id: !lambda |-
+                if ((int)(id(current_dimmer).state) == 1) {
+                  return "${luz1}";
+                }else if ((int)(id(current_dimmer).state) == 2) {
+                  return "${luz2}";
+                }else if ((int)(id(current_dimmer).state) == 3) {
+                  return "${luz3}";
+                }else {
+                  return "${luz4}";
+                }
+
  ########PAGINA LuzRGB########## 
   - platform: nextion
     name: $device_name Brightness Slider
@@ -426,7 +552,16 @@ binary_sensor:
         - homeassistant.service:
             service: light.turn_on
             data:
-              entity_id: $luz1 #luz RGB
+              entity_id: !lambda |-
+                if ((int)(id(current_rgb).state) == 1) {
+                  return "${luz1}";
+                }else if ((int)(id(current_rgb).state) == 2) {
+                  return "${luz2}";
+                }else if ((int)(id(current_rgb).state) == 3) {
+                  return "${luz3}";
+                }else {
+                  return "${luz4}";
+                }
               brightness: !lambda 'return (int)id(brightness_value).state;'
 
   - platform: nextion
@@ -445,7 +580,16 @@ binary_sensor:
         - homeassistant.service:
             service: script.rgbelson
             data:
-              light_name: $luz1
+              light_name: !lambda |-
+                if ((int)(id(current_rgb).state) == 1) {
+                  return "${luz1}";
+                }else if ((int)(id(current_rgb).state) == 2) {
+                  return "${luz2}";
+                }else if ((int)(id(current_rgb).state) == 3) {
+                  return "${luz3}";
+                }else {
+                  return "${luz4}";
+                }
               red: !lambda 'return id(red).state;'
               green: !lambda 'return id(green).state;'
               blue: !lambda 'return id(blue).state;'
@@ -464,7 +608,16 @@ binary_sensor:
         - homeassistant.service:
             service: light.turn_on
             data:
-              entity_id: $luz1 #luz RGB
+              entity_id: !lambda |-
+                if ((int)(id(current_rgb).state) == 1) {
+                  return "${luz1}";
+                }else if ((int)(id(current_rgb).state) == 2) {
+                  return "${luz2}";
+                }else if ((int)(id(current_rgb).state) == 3) {
+                  return "${luz3}";
+                }else {
+                  return "${luz4}";
+                }
               color_temp: !lambda 'return (int)id(color_temp_value).state;'
 
   - platform: nextion
@@ -477,7 +630,16 @@ binary_sensor:
         - homeassistant.service:
             service: light.toggle
             data:
-              entity_id: $luz1     
+              entity_id: !lambda |-
+                if ((int)(id(current_rgb).state) == 1) {
+                  return "${luz1}";
+                }else if ((int)(id(current_rgb).state) == 2) {
+                  return "${luz2}";
+                }else if ((int)(id(current_rgb).state) == 3) {
+                  return "${luz3}";
+                }else {
+                  return "${luz4}";
+                }   
  
  ########PAGINA TV##########
   - platform: nextion
@@ -677,8 +839,6 @@ binary_sensor:
               entity_id: $spotify 
               volume_level: !lambda 'return id(media_music_slider).state/100;'
     
-
-
  ########PAGINA Musica########## 
   - platform: nextion
     name: $device_name Previous Track Button
@@ -794,11 +954,46 @@ binary_sensor:
     internal: true
     on_release:
       then:
-        - lambda: 'ESP_LOGD("DEDO","TESTE");'
         - homeassistant.service:
             service: light.toggle
             data_template:
               entity_id: $luz1
+
+  - platform: nextion
+    name: $device_name Button info 1
+    page_id: $pag_luzes
+    component_id: 13
+    internal: true
+    on_release:
+      then:
+        - lambda: |-
+            id(disp1).send_command_printf("LuzRGB.current.val=1");
+            id(current_rgb).update();
+            id(disp1).send_command_printf("page LuzRGB");
+
+  - platform: nextion
+    name: $device_name Button info 2
+    page_id: $pag_luzes
+    component_id: 14
+    internal: true
+    on_release:
+      then:
+        - lambda: |-
+            id(disp1).send_command_printf("LuzRGB.current.val=2");
+            id(current_rgb).update();
+            id(disp1).send_command_printf("page LuzRGB");
+
+  - platform: nextion
+    name: $device_name Button info 4
+    page_id: $pag_luzes
+    component_id: 16
+    internal: true
+    on_release:
+      then:
+        - lambda: |-
+            id(disp1).send_command_printf("LuzDimmer.current.val=4");
+            id(current_dimmer).update();
+            id(disp1).send_command_printf("page LuzDimmer");
 
   - platform: nextion
     name: $device_name Button 2
@@ -920,17 +1115,41 @@ binary_sensor:
         - rtttl.play: $barulho
         - if:
             condition:
-              lambda: 'return id(current_mode).state == "0";'
+              lambda: 'return id(ar1_current_mode).state == "0";'
             then:
               - homeassistant.service:
                   service: climate.turn_on
                   data_template:
-                    entity_id: $target_thermostat
+                    entity_id: $ar1
             else:
               - homeassistant.service:
                   service: climate.turn_off
                   data_template:
-                    entity_id: $target_thermostat
+                    entity_id: $ar1
+
+  - platform: nextion
+    name: $device_name dispositivos Button info 1
+    page_id: $pag_dispositivos
+    component_id: 13
+    internal: true
+    on_release:
+      then:
+        - lambda: |-
+            id(disp1).send_command_printf("Ar.current.val=1");
+            id(current_ar).update();
+            id(disp1).send_command_printf("page Ar");
+
+  - platform: nextion
+    name: $device_name dispositivos Button info 4
+    page_id: $pag_dispositivos
+    component_id: 15
+    internal: true
+    on_release:
+      then:
+        - lambda: |-
+            id(disp1).send_command_printf("Ar.current.val=2");
+            id(current_ar).update();
+            id(disp1).send_command_printf("page Ar");
 
   - platform: nextion
     name: $device_name dispositivos Button 2
@@ -1007,7 +1226,6 @@ binary_sensor:
     on_release:
       then:
         - switch.toggle: temporizador
-
 
  ########PAGINA som##########
   - platform: nextion
@@ -1385,6 +1603,7 @@ binary_sensor:
                 return resultado;
 
    #     return id(timeconfig_horas_slider).state;
+
  ########PAGINA persiana########## 
   - platform: nextion
     name: $device_name persiana Slider
@@ -1400,7 +1619,7 @@ binary_sensor:
         - homeassistant.service:
             service: cover.set_cover_position
             data:
-              entity_id: $persiana #luz RGB
+              entity_id: $persiana
               position: !lambda 'return (int)id(cover_position).state;'
 
   - platform: nextion
@@ -1477,6 +1696,46 @@ sensor:
     name: "Nextion_isConnected"
     component_name: Config.brightsleep
     
+ ########Sensor ar##########
+  - platform: nextion
+    id: current_ar
+    component_name: Ar.current
+
+ ########Sensor luzRGB##########
+  - platform: nextion
+    id: current_rgb
+    component_name: LuzRGB.current
+
+  - platform: nextion
+    id: brightness_value
+    component_name: brightnessVal
+        
+  - platform: nextion
+    id: color_temp_value
+    component_name: tempSlider
+
+  ########Sensor Color Slider##########
+  - platform: nextion
+    id: red
+    component_name: LuzRGB.red
+            
+  - platform: nextion
+    id: green
+    component_name: LuzRGB.green
+
+  - platform: nextion
+    id: blue
+    component_name: LuzRGB.blue
+
+ ########Sensor luzDimmer##########
+  - platform: nextion
+    id: current_dimmer
+    component_name: LuzDimmer.current
+
+  - platform: nextion
+    id: brightness_value2
+    component_name: brightnessVal2    
+
  ########Sensor painel##########
   - platform: nextion
     id: display_brightness
@@ -1485,7 +1744,6 @@ sensor:
   - platform: nextion
     id: display_brightness_slider
     component_name: brightSlider
-
 
  ########Sensor timeConfig##########
   - platform: nextion
@@ -1572,63 +1830,95 @@ sensor:
     id: timeconfig_minutos_slider
     component_name: minutosSlider
 
- ########Sensor ar##########
+ ########Sensor ar1##########
   - platform: homeassistant
-    id: target_temperature
-    entity_id: $target_thermostat
+    id: ar1_temperature
+    entity_id: $ar1
     attribute: temperature
     on_value:
       then:
         - lambda: |-
             if(!strcmp(id(current_page2).c_str(),to_string("${pag_ar}").c_str())){
-              if(id(current_mode).state == "0"){
-                id(disp1).set_component_text_printf("targetTemp", "--");
-                id(disp1).send_command_printf("vis t0,0");
-              }else{
-                id(disp1).set_component_text_printf("targetTemp", "%i""°", (int)x);
-                id(disp1).send_command_printf("vis t0,1");
+              if((int)(id(current_ar).state) == 1){
+                if(id(ar1_current_mode).state == "0"){
+                  id(disp1).set_component_text_printf("targetTemp", "--");
+                  id(disp1).send_command_printf("vis t0,0");
+                }else{
+                  id(disp1).set_component_text_printf("targetTemp", "%i""°", (int)x);
+                  id(disp1).send_command_printf("vis t0,1");
+                }
               }
             }
 
-
   - platform: homeassistant
-    id: current_temperature
-    entity_id: $target_thermostat
+    id: ar1_current_temperature
+    entity_id: $ar1
     attribute: current_temperature
     on_value:
       then:
         - lambda: |-
             if(!strcmp(id(current_page2).c_str(),to_string("${pag_ar}").c_str())){
-              id(disp1).set_component_text_printf("currentTemp", "%i""°", (int)x);
+              if((int)(id(current_ar).state) == 1){
+                id(disp1).set_component_text_printf("currentTemp", "%i""°", (int)x);
+              }
             }
 
-
- ########Sensor Luz2##########
+ ########Sensor ar2##########
   - platform: homeassistant
-    id: current_brightness2
-    entity_id: $luz2 #luz RGB
+    id: ar2_temperature
+    entity_id: $ar2
+    attribute: temperature
+    on_value:
+      then:
+        - lambda: |-
+            if(!strcmp(id(current_page2).c_str(),to_string("${pag_ar}").c_str())){
+              if((int)(id(current_ar).state) == 2){
+                if(id(ar2_current_mode).state == "0"){
+                  id(disp1).set_component_text_printf("targetTemp", "--");
+                  id(disp1).send_command_printf("vis t0,0");
+                }else{
+                  id(disp1).set_component_text_printf("targetTemp", "%i""°", (int)x);
+                  id(disp1).send_command_printf("vis t0,1");
+                }
+              }
+            }
+
+  - platform: homeassistant
+    id: ar2_current_temperature
+    entity_id: $ar2
+    attribute: current_temperature
+    on_value:
+      then:
+        - lambda: |-
+            if(!strcmp(id(current_page2).c_str(),to_string("${pag_ar}").c_str())){
+              if((int)(id(current_ar).state) == 2){
+                id(disp1).set_component_text_printf("currentTemp", "%i""°", (int)x);
+              }
+            }
+
+ ########Sensor Luz4##########
+  - platform: homeassistant
+    id: luz4_current_brightness
+    entity_id: $luz4 
     attribute: brightness
     on_value:
       then:
         - lambda: |-
             ESP_LOGD("DEDO","%i",(int)((x/255)*100) );
             if(id(slider_aux) == false){
-              if (!strcmp(id(current_page2).c_str(),to_string("${pag_luz2}").c_str())){
+              if (!strcmp(id(current_page2).c_str(),to_string("${pag_luzdimmer}").c_str())){
+                if ((int)(id(current_dimmer).state) == 4) {
                   id(disp1).send_command_printf("brightnessVal2.val=%i", (int)x);
+                }
               }
             }
         - delay: 100ms
         - lambda: 'id(slider_aux) = false;'
- 
 
-  - platform: nextion
-    id: brightness_value2
-    component_name: brightnessVal2
-
-########Sensor LuzRgb##########
+ ########Sensor Luz2##########
   - platform: homeassistant
-    id: current_brightness
-    entity_id: $luz1 #luz RGB
+    id: luz2_current_brightness
+    entity_id: $luz2 
     attribute: brightness
     on_value:
       then:
@@ -1636,63 +1926,70 @@ sensor:
             ESP_LOGD("DEDO","%i",(int)((x/255)*100) );
             if(id(slider_aux) == false){
               if (!strcmp(id(current_page2).c_str(),to_string("${pag_luzrgb}").c_str())){
+                if ((int)(id(current_rgb).state) == 2) {
                   id(disp1).send_command_printf("brightnessVal.val=%i", (int)x);
+                }
               }
             }
         - delay: 100ms
         - lambda: 'id(slider_aux) = false;'
  
 
-  - platform: nextion
-    id: brightness_value
-    component_name: brightnessVal
-
   - platform: homeassistant
-    id: current_color_temp
-    entity_id: $luz1 #luz RGB
+    id: luz2_current_color_temp
+    entity_id: $luz2
     attribute: color_temp
     on_value:
       then:
         - lambda: |-
             if(id(slider_aux) == false){
               if(!strcmp(id(current_page2).c_str(),to_string("${pag_luzrgb}").c_str())){
-                id(disp1).send_command_printf("tempSlider.val=%i", (int)x);
+                if ((int)(id(current_rgb).state) == 2) {
+                  id(disp1).send_command_printf("tempSlider.val=%i", (int)x);
+                }
               }
             }
         - delay: 200ms
         - lambda: 'id(slider_aux) = false;'
-        
-  - platform: nextion
-    id: color_temp_value
-    component_name: tempSlider
+ 
+ ########Sensor Luz1##########
+  - platform: homeassistant
+    id: luz1_current_brightness
+    entity_id: $luz1 
+    attribute: brightness
+    on_value:
+      then:
+        - lambda: |-
+            ESP_LOGD("DEDO","%i",(int)((x/255)*100) );
+            if(id(slider_aux) == false){
+              if (!strcmp(id(current_page2).c_str(),to_string("${pag_luzrgb}").c_str())){
+                if ((int)(id(current_rgb).state) == 1) {
+                  id(disp1).send_command_printf("brightnessVal.val=%i", (int)x);
+                }
+              }
+            }
+        - delay: 100ms
+        - lambda: 'id(slider_aux) = false;'
+ 
 
-########Sensor Color Slider##########
-  - platform: nextion
-    id: red
-    component_name: LuzRGB.red
-            
-  - platform: nextion
-    id: green
-    component_name: LuzRGB.green
+  - platform: homeassistant
+    id: luz1_current_color_temp
+    entity_id: $luz1
+    attribute: color_temp
+    on_value:
+      then:
+        - lambda: |-
+            if(id(slider_aux) == false){
+              if(!strcmp(id(current_page2).c_str(),to_string("${pag_luzrgb}").c_str())){
+                if ((int)(id(current_rgb).state) == 2) {
+                  id(disp1).send_command_printf("tempSlider.val=%i", (int)x);
+                }
+              }
+            }
+        - delay: 200ms
+        - lambda: 'id(slider_aux) = false;'
 
-  - platform: nextion
-    id: blue
-    component_name: LuzRGB.blue
-
-########Sensor Color wheel##########
-  - platform: nextion
-    id: color_wheel_x
-    component_name: LuzRGB.selectedColorX
-    filters:
-      - offset: -54
-            
-  - platform: nextion
-    id: color_wheel_y
-    component_name: LuzRGB.selectedColorY
-    filters:
-      - offset: -215
-
-########Sensor Som##########
+ ########Sensor Som##########
   - platform: homeassistant
     id: receiver1_volume
     entity_id: $receiver_zone_1
@@ -1748,7 +2045,7 @@ sensor:
     id: receiver_volume_slider
     component_name: VolumeLevel
 
-########Sensor Musica##########
+ ########Sensor Musica##########
   - platform: homeassistant
     id: media_duration
     entity_id: $spotify
@@ -1820,8 +2117,7 @@ sensor:
     id: media_progress_slider
     component_name: progressSlider
 
-
-########Sensor persiana##########
+ ########Sensor persiana##########
   - platform: homeassistant
     id: current_position
     entity_id: $persiana
@@ -1842,11 +2138,8 @@ sensor:
     id: cover_position
     component_name: coverVal
 
-
-
 text_sensor:
-
-########TxTSensor Data##########
+ ########TxTSensor Data##########
 
   - platform: template
     name: "Dia da semana"
@@ -1881,7 +2174,7 @@ text_sensor:
       - 11 -> Novembro
       - 12 -> Dezembro
 
-########TxTSensor Musica##########
+ ########TxTSensor Musica##########
 
   - platform: homeassistant
     id: media_shuffle
@@ -1988,7 +2281,7 @@ text_sensor:
                 id(disp1).set_component_text_printf("titulo", "%s", x.c_str());
             }
 
-########TxTSensor Tv##########
+ ########TxTSensor Tv##########
   - platform: homeassistant
     id: tv_source
     entity_id: $tv1
@@ -1998,9 +2291,9 @@ text_sensor:
         - lambda: |-
             if(!strcmp(id(current_page2).c_str(),to_string("${pag_tv}").c_str())){
             }
-# a fazer
+ # a fazer
 
-########TxTSensor Som##########
+ ########TxTSensor Som##########
 
   - platform: nextion
     id: som_current_receiver
@@ -2138,51 +2431,10 @@ text_sensor:
               }
             }
 
-
-
-
-########TxTSensor luz3##########
+ ########TxTSensor luz3##########
   - platform: homeassistant
     id: luz3
     entity_id: $luz3
-    filters:
-    - map:
-      - on -> 1
-      - off -> 0
-    on_value:
-      then:
-        - lambda: !lambda |-
-            if(!strcmp(id(current_page2).c_str(),to_string("${pag_luzes}").c_str())){
-                id(disp1).send_command_printf("b2.picc=%i", atoi(x.c_str()));
-                id(disp1).send_command_printf("b2.picc2=%i",atoi(x.c_str()));
-            }   
-
-########TxTSensor luz2##########
-  - platform: homeassistant
-    id: luz2
-    entity_id: $luz2
-    filters:
-    - map:
-      - on -> 1
-      - off -> 0
-    on_value:
-      then:
-        - lambda: !lambda |-
-            if(!strcmp(id(current_page2).c_str(),to_string("${pag_luz2}").c_str())){
-              id(disp1).send_command_printf("b0.picc=%i",23 + atoi(x.c_str()));
-              id(disp1).send_command_printf("b0.picc2=%i",23 + atoi(x.c_str()));
-            }
-            if(!strcmp(id(current_page2).c_str(),to_string("${pag_luzes}").c_str())){
-                id(disp1).send_command_printf("b1.picc=%i", atoi(x.c_str()));
-                id(disp1).send_command_printf("b1.picc2=%i",atoi(x.c_str()));
-                id(disp1).send_command_printf("b1info.picc=%i", atoi(x.c_str()));
-                id(disp1).send_command_printf("b1info.picc2=%i",atoi(x.c_str()));
-            } 
-
-########TxTSensor luz4##########
-  - platform: homeassistant
-    id: luz4
-    entity_id: $luz4
     filters:
     - map:
       - on -> 1
@@ -2195,48 +2447,33 @@ text_sensor:
                 id(disp1).send_command_printf("b3.picc2=%i",atoi(x.c_str()));
             }   
 
-########TxTSensor luzMaster##########
+ ########TxTSensor luz2##########
   - platform: homeassistant
-    id: luzMaster
-    entity_id: $luz5
+    id: luz2
+    entity_id: $luz2
     filters:
     - map:
       - on -> 1
       - off -> 0
     on_value:
-      then:
-        - lambda: !lambda |-
-            if(!strcmp(id(current_page2).c_str(),to_string("${pag_luzes}").c_str())){
-                id(disp1).send_command_printf("b4.picc=%i", atoi(x.c_str()));
-                id(disp1).send_command_printf("b4.picc2=%i",atoi(x.c_str()));
-            }   
-    
-########TxTSensor luz1##########
-  - platform: homeassistant
-    id: luzRGB
-    entity_id: $luz1
-    filters:
-    - map:
-      - on -> 1
-      - off -> 0
-    on_value:
- #mudar
       then:
         - lambda: !lambda |-
             if(!strcmp(id(current_page2).c_str(),to_string("${pag_luzrgb}").c_str())){ 
-              id(disp1).send_command_printf("b0.picc=%i",8 + atoi(x.c_str()));
-              id(disp1).send_command_printf("b0.picc2=%i",8 + atoi(x.c_str()));
+              if((int)(id(current_rgb).state) == 2){
+                id(disp1).send_command_printf("b0.picc=%i",8 + atoi(x.c_str()));
+                id(disp1).send_command_printf("b0.picc2=%i",8 + atoi(x.c_str()));
+              }
             }
             if(!strcmp(id(current_page2).c_str(),to_string("${pag_luzes}").c_str())){
-                id(disp1).send_command_printf("b0.picc=%i", atoi(x.c_str()));
-                id(disp1).send_command_printf("b0.picc2=%i",atoi(x.c_str()));
-                id(disp1).send_command_printf("b0info.picc=%i", atoi(x.c_str()));
-                id(disp1).send_command_printf("b0info.picc2=%i",atoi(x.c_str()));
+                id(disp1).send_command_printf("b2.picc=%i", atoi(x.c_str()));
+                id(disp1).send_command_printf("b2.picc2=%i",atoi(x.c_str()));
+                id(disp1).send_command_printf("b2info.picc=%i", atoi(x.c_str()));
+                id(disp1).send_command_printf("b2info.picc2=%i",atoi(x.c_str()));
             }
 
   - platform: homeassistant
-    id: current_brightness_rgb
-    entity_id: $luz1 #luz RGB
+    id: luz2_current_brightness_rgb
+    entity_id: $luz2
     attribute: rgb_color
     filters:
     - substitute:
@@ -2260,10 +2497,9 @@ text_sensor:
         sprintf(str, "%d", nextion);
         return {str};
 
-
   - platform: homeassistant
-    id: current_brightness_rgb_slider
-    entity_id: $luz1 #luz RGB
+    id: luz2_current_brightness_rgb_slider
+    entity_id: $luz2
     attribute: rgb_color
     filters:
     - substitute:
@@ -2309,17 +2545,163 @@ text_sensor:
       then:
         - lambda: |-
             if(id(slider_aux) == false){
-              if(!strcmp(id(current_page2).c_str(),to_string("${pag_luzrgb}").c_str())){  
-                id(disp1).send_command_printf("colorSlider.val=%s", x.c_str());
+              if(!strcmp(id(current_page2).c_str(),to_string("${pag_luzrgb}").c_str())){ 
+                if((int)(id(current_rgb).state) == 2){
+                  id(disp1).send_command_printf("colorSlider.val=%s", x.c_str());
+                }
+              }
+            }
+        - delay: 200ms
+        - lambda: 'id(slider_aux) = false;'
+            
+ ########TxTSensor luz4##########
+  - platform: homeassistant
+    id: luz4
+    entity_id: $luz4
+    filters:
+    - map:
+      - on -> 1
+      - off -> 0
+    on_value:
+      then:
+        - lambda: !lambda |-
+            if(!strcmp(id(current_page2).c_str(),to_string("${pag_luzdimmer}").c_str())){
+              if((int)(id(current_dimmer).state) == 4){ 
+                id(disp1).send_command_printf("b0.picc=%i",23 + atoi(x.c_str()));
+                id(disp1).send_command_printf("b0.picc2=%i",23 + atoi(x.c_str()));
+              }
+            }
+            if(!strcmp(id(current_page2).c_str(),to_string("${pag_luzes}").c_str())){
+                id(disp1).send_command_printf("b4.picc=%i", atoi(x.c_str()));
+                id(disp1).send_command_printf("b4.picc2=%i",atoi(x.c_str()));
+            } 
+
+ ########TxTSensor luzMaster##########
+  - platform: homeassistant
+    id: luzMaster
+    entity_id: $luz5
+    filters:
+    - map:
+      - on -> 1
+      - off -> 0
+    on_value:
+      then:
+        - lambda: !lambda |-
+            if(!strcmp(id(current_page2).c_str(),to_string("${pag_luzes}").c_str())){
+                id(disp1).send_command_printf("b5.picc=%i", atoi(x.c_str()));
+                id(disp1).send_command_printf("b5.picc2=%i",atoi(x.c_str()));
+            }   
+    
+ ########TxTSensor luz1##########
+  - platform: homeassistant
+    id: luz1
+    entity_id: $luz1
+    filters:
+    - map:
+      - on -> 1
+      - off -> 0
+    on_value:
+      then:
+        - lambda: !lambda |-
+            if(!strcmp(id(current_page2).c_str(),to_string("${pag_luzrgb}").c_str())){
+              if((int)(id(current_rgb).state) == 1){
+                id(disp1).send_command_printf("b0.picc=%i",8 + atoi(x.c_str()));
+                id(disp1).send_command_printf("b0.picc2=%i",8 + atoi(x.c_str()));
+              }
+            }
+            if(!strcmp(id(current_page2).c_str(),to_string("${pag_luzes}").c_str())){
+                id(disp1).send_command_printf("b1.picc=%i", atoi(x.c_str()));
+                id(disp1).send_command_printf("b1.picc2=%i",atoi(x.c_str()));
+                id(disp1).send_command_printf("b1info.picc=%i", atoi(x.c_str()));
+                id(disp1).send_command_printf("b1info.picc2=%i",atoi(x.c_str()));
+            }
+
+  - platform: homeassistant
+    id: luz1_current_brightness_rgb
+    entity_id: $luz1
+    attribute: rgb_color
+    filters:
+    - substitute:
+      - "( -> "
+      - ") -> "
+    - lambda: |-
+        char delim[] = ", ";
+        char *ptr = strtok((char*)x.c_str(), delim);
+        char rgb[3][4];
+        int i=0;
+        while(ptr != NULL){
+          strcpy(rgb[i],ptr);
+          i++;
+          ptr = strtok(NULL, delim);
+        }
+        int r = atoi(rgb[0]);
+        int g = atoi(rgb[1]);
+        int b = atoi(rgb[2]);
+        int nextion = (r/8)*2048 + (g/4)*32 + (b/8);
+        char str[6];
+        sprintf(str, "%d", nextion);
+        return {str};
+
+  - platform: homeassistant
+    id: luz1_current_brightness_rgb_slider
+    entity_id: $luz1 
+    attribute: rgb_color
+    filters:
+    - substitute:
+      - "( -> "
+      - ") -> "
+    - lambda: |-
+        char delim[] = ", ";
+        char *ptr = strtok((char*)x.c_str(), delim);
+        char rgb[3][4];
+        int i=0;
+        while(ptr != NULL){
+          strcpy(rgb[i],ptr);
+          i++;
+          ptr = strtok(NULL, delim);
+        }
+        int r = atoi(rgb[0]);
+        int g = atoi(rgb[1]);
+        int b = atoi(rgb[2]);
+
+        char str[6];
+        if(r < g && r < b){
+          if(g >= b){
+            sprintf(str, "%d", b+510);
+          }else{
+            sprintf(str, "%d", 1020-g);
+          }
+        }else if(g < b){
+          if(b >= r){
+            sprintf(str, "%d", 1020+r);
+          }else{
+            sprintf(str, "%d", 1529-b);
+          }
+        }else{
+          if(r >= g){
+            sprintf(str, "%d", g);
+          }else{
+            sprintf(str, "%d", 510-r);
+          }
+        }
+        return {str};  
+    on_value:
+      then:
+        - lambda: |-
+            if(id(slider_aux) == false){
+              if(!strcmp(id(current_page2).c_str(),to_string("${pag_luzrgb}").c_str())){ 
+                if((int)(id(current_rgb).state) == 1){
+                  id(disp1).send_command_printf("colorSlider.val=%s", x.c_str());
+                }
               }
             }
         - delay: 200ms
         - lambda: 'id(slider_aux) = false;'
 
-########TxTSensor ar##########
+ ########TxTSensor ar1##########
   - platform: homeassistant
-    id: current_mode
-    entity_id: $target_thermostat
+    id: ar1_current_mode
+    entity_id: $ar1
     filters:
       - map:
         - off -> 0
@@ -2331,28 +2713,30 @@ text_sensor:
       then:
         - lambda: |-
             if(!strcmp(id(current_page2).c_str(),to_string("${pag_ar}").c_str())){
-              id(disp1).send_command_printf("auto.picc=11");
-              id(disp1).send_command_printf("auto.picc2=11");
-              id(disp1).send_command_printf("cool.picc=11");
-              id(disp1).send_command_printf("cool.picc2=11");
-              id(disp1).send_command_printf("humidity.picc=11");
-              id(disp1).send_command_printf("humidity.picc2=11");
-              id(disp1).send_command_printf("fan.picc=11");
-              id(disp1).send_command_printf("fan.picc2=11");
-              if(x=="0"){
-                id(disp1).send_command_printf("vis fanSpeed,0");
-                id(disp1).send_command_printf("vis t0,0");
-                id(disp1).set_component_text_printf("targetTemp", "--");
-                id(disp1).send_command_printf("power.picc=11");
-                id(disp1).send_command_printf("power.picc2=11");
-              }else{
-                id(disp1).send_command_printf("vis fanSpeed,1");
-                id(disp1).send_command_printf("vis t0,1");
-                id(disp1).set_component_text_printf("targetTemp", "%i""°", (int)id(target_temperature).state);
-                id(disp1).send_command_printf("%s.picc=12",x.c_str());
-                id(disp1).send_command_printf("%s.picc2=12",x.c_str());
-                id(disp1).send_command_printf("power.picc=12");
-                id(disp1).send_command_printf("power.picc2=12");
+              if((int)(id(current_ar).state) == 1){
+                id(disp1).send_command_printf("auto.picc=11");
+                id(disp1).send_command_printf("auto.picc2=11");
+                id(disp1).send_command_printf("cool.picc=11");
+                id(disp1).send_command_printf("cool.picc2=11");
+                id(disp1).send_command_printf("humidity.picc=11");
+                id(disp1).send_command_printf("humidity.picc2=11");
+                id(disp1).send_command_printf("fan.picc=11");
+                id(disp1).send_command_printf("fan.picc2=11");
+                if(x=="0"){
+                  id(disp1).send_command_printf("vis fanSpeed,0");
+                  id(disp1).send_command_printf("vis t0,0");
+                  id(disp1).set_component_text_printf("targetTemp", "--");
+                  id(disp1).send_command_printf("power.picc=11");
+                  id(disp1).send_command_printf("power.picc2=11");
+                }else{
+                  id(disp1).send_command_printf("vis fanSpeed,1");
+                  id(disp1).send_command_printf("vis t0,1");
+                  id(disp1).set_component_text_printf("targetTemp", "%i""°", (int)id(ar1_temperature).state);
+                  id(disp1).send_command_printf("%s.picc=12",x.c_str());
+                  id(disp1).send_command_printf("%s.picc2=12",x.c_str());
+                  id(disp1).send_command_printf("power.picc=12");
+                  id(disp1).send_command_printf("power.picc2=12");
+                }
               }
             }
             if(!strcmp(id(current_page2).c_str(),to_string("${pag_dispositivos}").c_str())){
@@ -2371,8 +2755,8 @@ text_sensor:
 
 
   - platform: homeassistant
-    id: fan_speed
-    entity_id: $target_thermostat
+    id: ar1_fan_speed
+    entity_id: $ar1
     attribute: fan_mode
     filters:
       - map:
@@ -2384,24 +2768,112 @@ text_sensor:
       then:
         - lambda: !lambda |-
             if(!strcmp(id(current_page2).c_str(),to_string("${pag_ar}").c_str())){
-              if (x == "1") {
-                id(disp1).send_command_printf("fanSpeed.pic=14");
-                id(disp1).send_command_printf("fanSpeed.pic2=14");
-              } else if (x == "2") {
-                id(disp1).send_command_printf("fanSpeed.pic=15");
-                id(disp1).send_command_printf("fanSpeed.pic2=15");
-              } else if (x == "3") {
-                id(disp1).send_command_printf("fanSpeed.pic=16");
-                id(disp1).send_command_printf("fanSpeed.pic2=16");
-              } else if (x == "4") {
-                id(disp1).send_command_printf("fanSpeed.pic=13");
-                id(disp1).send_command_printf("fanSpeed.pic2=13");
+              if((int)(id(current_ar).state) == 1){
+                if (x == "1") {
+                  id(disp1).send_command_printf("fanSpeed.pic=14");
+                  id(disp1).send_command_printf("fanSpeed.pic2=14");
+                } else if (x == "2") {
+                  id(disp1).send_command_printf("fanSpeed.pic=15");
+                  id(disp1).send_command_printf("fanSpeed.pic2=15");
+                } else if (x == "3") {
+                  id(disp1).send_command_printf("fanSpeed.pic=16");
+                  id(disp1).send_command_printf("fanSpeed.pic2=16");
+                } else if (x == "4") {
+                  id(disp1).send_command_printf("fanSpeed.pic=13");
+                  id(disp1).send_command_printf("fanSpeed.pic2=13");
+                }
+              }
+            }
+
+ ########TxTSensor ar2##########
+  - platform: homeassistant
+    id: ar2_current_mode
+    entity_id: $ar2
+    filters:
+      - map:
+        - off -> 0
+        - heat_cool -> auto #autoActive
+        - cool -> cool #coolActive
+        - dry -> humidity #dryActive
+        - fan_only -> fan #fanActive
+    on_value:
+      then:
+        - lambda: |-
+            if(!strcmp(id(current_page2).c_str(),to_string("${pag_ar}").c_str())){
+              if((int)(id(current_ar).state) == 2){
+                id(disp1).send_command_printf("auto.picc=11");
+                id(disp1).send_command_printf("auto.picc2=11");
+                id(disp1).send_command_printf("cool.picc=11");
+                id(disp1).send_command_printf("cool.picc2=11");
+                id(disp1).send_command_printf("humidity.picc=11");
+                id(disp1).send_command_printf("humidity.picc2=11");
+                id(disp1).send_command_printf("fan.picc=11");
+                id(disp1).send_command_printf("fan.picc2=11");
+                if(x=="0"){
+                  id(disp1).send_command_printf("vis fanSpeed,0");
+                  id(disp1).send_command_printf("vis t0,0");
+                  id(disp1).set_component_text_printf("targetTemp", "--");
+                  id(disp1).send_command_printf("power.picc=11");
+                  id(disp1).send_command_printf("power.picc2=11");
+                }else{
+                  id(disp1).send_command_printf("vis fanSpeed,1");
+                  id(disp1).send_command_printf("vis t0,1");
+                  id(disp1).set_component_text_printf("targetTemp", "%i""°", (int)id(ar2_temperature).state);
+                  id(disp1).send_command_printf("%s.picc=12",x.c_str());
+                  id(disp1).send_command_printf("%s.picc2=12",x.c_str());
+                  id(disp1).send_command_printf("power.picc=12");
+                  id(disp1).send_command_printf("power.picc2=12");
+                }
+              }
+            }
+            if(!strcmp(id(current_page2).c_str(),to_string("${pag_dispositivos}").c_str())){
+              if(x=="0"){
+                id(disp1).send_command_printf("b4.picc=4");
+                id(disp1).send_command_printf("b4.picc2=4");
+                id(disp1).send_command_printf("b4info.picc=4");
+                id(disp1).send_command_printf("b4info.picc2=4");
+              }else{
+                id(disp1).send_command_printf("b4.picc=5");
+                id(disp1).send_command_printf("b4.picc2=5");
+                id(disp1).send_command_printf("b4info.picc=5");
+                id(disp1).send_command_printf("b4info.picc2=5");
+              }
+            }
+
+
+  - platform: homeassistant
+    id: ar2_fan_speed
+    entity_id: $ar2
+    attribute: fan_mode
+    filters:
+      - map:
+        - low -> 1
+        - medium -> 2
+        - high -> 3
+        - auto -> 4
+    on_value:
+      then:
+        - lambda: !lambda |-
+            if(!strcmp(id(current_page2).c_str(),to_string("${pag_ar}").c_str())){
+              if((int)(id(current_ar).state) == 2){
+                if (x == "1") {
+                  id(disp1).send_command_printf("fanSpeed.pic=14");
+                  id(disp1).send_command_printf("fanSpeed.pic2=14");
+                } else if (x == "2") {
+                  id(disp1).send_command_printf("fanSpeed.pic=15");
+                  id(disp1).send_command_printf("fanSpeed.pic2=15");
+                } else if (x == "3") {
+                  id(disp1).send_command_printf("fanSpeed.pic=16");
+                  id(disp1).send_command_printf("fanSpeed.pic2=16");
+                } else if (x == "4") {
+                  id(disp1).send_command_printf("fanSpeed.pic=13");
+                  id(disp1).send_command_printf("fanSpeed.pic2=13");
+                }
               }
             }
 
 
 # Define some outputs
-#Mudar
 switch:
   # The two relays
   - platform: gpio
@@ -2554,7 +3026,6 @@ script:
           }
 
           if (!strcmp(id(current_page2).c_str(),to_string("${pag_ar}").c_str())){// Ar page
-            id(disp1).set_component_text_printf("currentTemp", "%i""°", (int)id(current_temperature).state);
             id(disp1).send_command_printf("auto.picc=11");
             id(disp1).send_command_printf("auto.picc2=11");
             id(disp1).send_command_printf("cool.picc=11");
@@ -2563,57 +3034,106 @@ script:
             id(disp1).send_command_printf("humidity.picc2=11");
             id(disp1).send_command_printf("fan.picc=11");
             id(disp1).send_command_printf("fan.picc2=11");
-            if (id(current_mode).state == "0") {
-              id(disp1).send_command_printf("vis fanSpeed,0");
-              id(disp1).send_command_printf("vis t0,0");
-              id(disp1).set_component_text_printf("targetTemp", "--");
-              id(disp1).send_command_printf("power.picc=11");
-              id(disp1).send_command_printf("power.picc2=11");
-            } else {
-              id(disp1).send_command_printf("vis fanSpeed,1");
-              id(disp1).send_command_printf("vis t0,1");
-              id(disp1).set_component_text_printf("targetTemp", "%i""°", (int)id(target_temperature).state);
-              id(disp1).send_command_printf("power.picc=12");
-              id(disp1).send_command_printf("power.picc2=12");
-              id(disp1).send_command_printf("%s.picc=12",id(current_mode).state.c_str());
-              id(disp1).send_command_printf("%s.picc2=12",id(current_mode).state.c_str());
-            }
+            id(disp1).send_command_printf("power.picc=11");
+            id(disp1).send_command_printf("power.picc2=11");
 
-            if (id(fan_speed).state == "1") {
-              id(disp1).send_command_printf("fanSpeed.pic=14");
-              id(disp1).send_command_printf("fanSpeed.pic2=14");
-            } else if (id(fan_speed).state == "2") {
-              id(disp1).send_command_printf("fanSpeed.pic=15");
-              id(disp1).send_command_printf("fanSpeed.pic2=15");
-            } else if (id(fan_speed).state == "3") {
-              id(disp1).send_command_printf("fanSpeed.pic=16");
-              id(disp1).send_command_printf("fanSpeed.pic2=16");
-            } else if (id(fan_speed).state == "4") {
-              id(disp1).send_command_printf("fanSpeed.pic=13");
-              id(disp1).send_command_printf("fanSpeed.pic2=13");
+            if((int)(id(current_ar).state) == 1){
+              id(disp1).set_component_text_printf("currentTemp", "%i""°", (int)id(ar1_current_temperature).state);
+              if (id(ar1_current_mode).state == "0") {
+                id(disp1).set_component_text_printf("targetTemp", "--");
+              } else {
+                id(disp1).send_command_printf("vis fanSpeed,1");
+                id(disp1).send_command_printf("vis t0,1");
+                id(disp1).set_component_text_printf("targetTemp", "%i""°", (int)id(ar1_temperature).state);
+                id(disp1).send_command_printf("power.picc=12");
+                id(disp1).send_command_printf("power.picc2=12");
+                id(disp1).send_command_printf("%s.picc=12",id(ar1_current_mode).state.c_str());
+                id(disp1).send_command_printf("%s.picc2=12",id(ar1_current_mode).state.c_str());
+              }
+              if (id(ar1_fan_speed).state == "1") {
+                id(disp1).send_command_printf("fanSpeed.pic=14");
+                id(disp1).send_command_printf("fanSpeed.pic2=14");
+              } else if (id(ar1_fan_speed).state == "2") {
+                id(disp1).send_command_printf("fanSpeed.pic=15");
+                id(disp1).send_command_printf("fanSpeed.pic2=15");
+              } else if (id(ar1_fan_speed).state == "3") {
+                id(disp1).send_command_printf("fanSpeed.pic=16");
+                id(disp1).send_command_printf("fanSpeed.pic2=16");
+              } else if (id(ar1_fan_speed).state == "4") {
+                id(disp1).send_command_printf("fanSpeed.pic=13");
+                id(disp1).send_command_printf("fanSpeed.pic2=13");
+              }
+            }else{
+              id(disp1).set_component_text_printf("currentTemp", "%i""°", (int)id(ar2_current_temperature).state);
+              if (id(ar2_current_mode).state == "0") {
+                id(disp1).set_component_text_printf("targetTemp", "--");
+              } else {
+                id(disp1).send_command_printf("vis fanSpeed,1");
+                id(disp1).send_command_printf("vis t0,1");
+                id(disp1).set_component_text_printf("targetTemp", "%i""°", (int)id(ar2_temperature).state);
+                id(disp1).send_command_printf("power.picc=12");
+                id(disp1).send_command_printf("power.picc2=12");
+                id(disp1).send_command_printf("%s.picc=12",id(ar2_current_mode).state.c_str());
+                id(disp1).send_command_printf("%s.picc2=12",id(ar2_current_mode).state.c_str());
+              }
+              if (id(ar2_fan_speed).state == "1") {
+                id(disp1).send_command_printf("fanSpeed.pic=14");
+                id(disp1).send_command_printf("fanSpeed.pic2=14");
+              } else if (id(ar2_fan_speed).state == "2") {
+                id(disp1).send_command_printf("fanSpeed.pic=15");
+                id(disp1).send_command_printf("fanSpeed.pic2=15");
+              } else if (id(ar2_fan_speed).state == "3") {
+                id(disp1).send_command_printf("fanSpeed.pic=16");
+                id(disp1).send_command_printf("fanSpeed.pic2=16");
+              } else if (id(ar2_fan_speed).state == "4") {
+                id(disp1).send_command_printf("fanSpeed.pic=13");
+                id(disp1).send_command_printf("fanSpeed.pic2=13");
+              }
             }
           }
 
-          if (!strcmp(id(current_page2).c_str(),to_string("${pag_persiana}").c_str())){// RGB page
+          if (!strcmp(id(current_page2).c_str(),to_string("${pag_persiana}").c_str())){// 
             id(disp1).send_command_printf("coverVal.val=%i", (int)id(current_position).state);
           }
-          if (!strcmp(id(current_page2).c_str(),to_string("${pag_luz2}").c_str())){// RGB page
-            id(disp1).send_command_printf("brightnessVal2.val=%i", (int)id(current_brightness2).state);
-            id(disp1).send_command_printf("b0.picc=%i", 23 + atoi(id(luz2).state.c_str()));
-            id(disp1).send_command_printf("b0.picc2=%i",23 + atoi(id(luz2).state.c_str()));
-          }
+
           if (!strcmp(id(current_page2).c_str(),to_string("${pag_luzrgb}").c_str())){// RGB page
-            id(disp1).send_command_printf("brightnessVal.val=%i", (int)id(current_brightness).state);
-            id(disp1).send_command_printf("tempSlider.val=%i", (int)id(current_color_temp).state);
-            id(disp1).send_command_printf("colorSlider.val=%s", id(current_brightness_rgb_slider).state.c_str());
-            id(disp1).send_command_printf("b0.picc=%i", 8 + atoi(id(luzRGB).state.c_str()));
-            id(disp1).send_command_printf("b0.picc2=%i",8 + atoi(id(luzRGB).state.c_str()));
+            if((int)(id(current_rgb).state) == 1){
+              id(disp1).send_command_printf("brightnessVal.val=%i", (int)id(luz1_current_brightness).state);
+              id(disp1).send_command_printf("tempSlider.val=%i", (int)id(luz1_current_color_temp).state);
+              id(disp1).send_command_printf("colorSlider.val=%s", !strcmp(id(luz1_current_brightness_rgb_slider).state.c_str(),to_string("").c_str()) ? "249" : id(luz1_current_brightness_rgb_slider).state.c_str());
+              id(disp1).send_command_printf("b0.picc=%i", 8 + atoi(id(luz1).state.c_str()));
+              id(disp1).send_command_printf("b0.picc2=%i",8 + atoi(id(luz1).state.c_str()));
+            }else if((int)(id(current_rgb).state) == 2){
+              id(disp1).send_command_printf("brightnessVal.val=%i", (int)id(luz2_current_brightness).state);
+              id(disp1).send_command_printf("tempSlider.val=%i", (int)id(luz2_current_color_temp).state);
+              id(disp1).send_command_printf("colorSlider.val=%s", !strcmp(id(luz2_current_brightness_rgb_slider).state.c_str(),to_string("").c_str()) ? "249" : id(luz2_current_brightness_rgb_slider).state.c_str());
+              id(disp1).send_command_printf("b0.picc=%i", 8 + atoi(id(luz2).state.c_str()));
+              id(disp1).send_command_printf("b0.picc2=%i",8 + atoi(id(luz2).state.c_str()));
+            }else if((int)(id(current_rgb).state) == 3){
+
+            }else if((int)(id(current_rgb).state) == 4){
+              
+            }
+          }
+
+          if (!strcmp(id(current_page2).c_str(),to_string("${pag_luzdimmer}").c_str())){//
+            if((int)(id(current_dimmer).state) == 4){ 
+              id(disp1).send_command_printf("brightnessVal2.val=%i", (int)id(luz4_current_brightness).state);
+              id(disp1).send_command_printf("b0.picc=%i", 23 + atoi(id(luz4).state.c_str()));
+              id(disp1).send_command_printf("b0.picc2=%i",23 + atoi(id(luz4).state.c_str()));
+            }else if((int)(id(current_dimmer).state) == 2){
+
+            }else if((int)(id(current_dimmer).state) == 3){
+
+            }else if((int)(id(current_dimmer).state) == 4){
+
+            }
           }
 
           if (!strcmp(id(current_page2).c_str(),to_string("${pag_dispositivos}").c_str())){// Music page
             id(disp1).send_command_printf("b2.picc=%i", 4 + atoi(id(media_state).state.c_str()));
             id(disp1).send_command_printf("b2.picc2=%i",4 + atoi(id(media_state).state.c_str()));
-            if(id(current_mode).state == "0"){
+            if(id(ar1_current_mode).state == "0"){
               id(disp1).send_command_printf("b0.picc=4");
               id(disp1).send_command_printf("b0.picc2=4");
               id(disp1).send_command_printf("b0info.picc=4");
@@ -2659,6 +3179,7 @@ script:
               id(disp1).send_command_printf("VolumeLevel.val=%i", ((int)(id(receiver1_volume).state*100)));
             }
           }
+
           if (!strcmp(id(current_page2).c_str(),to_string("${pag_music}").c_str())){// Music page
             id(disp1).set_component_text_printf("titulo", "%s", id(media_title).state.c_str());
             id(disp1).set_component_text_printf("artista", "%s", id(media_artist).state.c_str());
@@ -2688,8 +3209,7 @@ script:
             }
             id(disp1).send_command_printf("MusicLevel.val=%i", ((int)(id(media_volume).state*100)));
             id(disp1).send_command_printf("progressSlider.val=%i", ((int)id(media_position).state) );
-            id(disp1).send_command_printf("b4.pic=%i", 19 + atoi(id(media_repeat).state.c_str()));
-            
+            id(disp1).send_command_printf("b4.pic=%i", 19 + atoi(id(media_repeat).state.c_str())); 
           }
 
           if(!strcmp(id(current_page2).c_str(),to_string("${pag_config}").c_str())){
@@ -2720,25 +3240,25 @@ script:
 
           if(!strcmp(id(current_page2).c_str(),to_string("${pag_luzes}").c_str())){
             
-            id(disp1).send_command_printf("b2.picc=%i", atoi(id(luz3).state.c_str()));
-            id(disp1).send_command_printf("b2.picc2=%i",atoi(id(luz3).state.c_str()));
+            id(disp1).send_command_printf("b3.picc=%i", atoi(id(luz3).state.c_str()));
+            id(disp1).send_command_printf("b3.picc2=%i",atoi(id(luz3).state.c_str()));
             
-            id(disp1).send_command_printf("b1.picc=%i", atoi(id(luz2).state.c_str()));
-            id(disp1).send_command_printf("b1.picc2=%i",atoi(id(luz2).state.c_str()));
-            id(disp1).send_command_printf("b1info.picc=%i", atoi(id(luz2).state.c_str()));
-            id(disp1).send_command_printf("b1info.picc2=%i",atoi(id(luz2).state.c_str()));
+            id(disp1).send_command_printf("b2.picc=%i", atoi(id(luz2).state.c_str()));
+            id(disp1).send_command_printf("b2.picc2=%i",atoi(id(luz2).state.c_str()));
+            id(disp1).send_command_printf("b2info.picc=%i", atoi(id(luz2).state.c_str()));
+            id(disp1).send_command_printf("b2info.picc2=%i",atoi(id(luz2).state.c_str()));
 
 
-            id(disp1).send_command_printf("b3.picc=%i", atoi(id(luz4).state.c_str()));
-            id(disp1).send_command_printf("b3.picc2=%i",atoi(id(luz4).state.c_str()));
+            id(disp1).send_command_printf("b4.picc=%i", atoi(id(luz4).state.c_str()));
+            id(disp1).send_command_printf("b4.picc2=%i",atoi(id(luz4).state.c_str()));
             
-            id(disp1).send_command_printf("b4.picc=%i", atoi(id(luzMaster).state.c_str()));
-            id(disp1).send_command_printf("b4.picc2=%i",atoi(id(luzMaster).state.c_str()));
+            id(disp1).send_command_printf("b5.picc=%i", atoi(id(luzMaster).state.c_str()));
+            id(disp1).send_command_printf("b5.picc2=%i",atoi(id(luzMaster).state.c_str()));
 
-            id(disp1).send_command_printf("b0.picc=%i", atoi(id(luzRGB).state.c_str()));
-            id(disp1).send_command_printf("b0.picc2=%i",atoi(id(luzRGB).state.c_str()));
-            id(disp1).send_command_printf("b0info.picc=%i", atoi(id(luzRGB).state.c_str()));
-            id(disp1).send_command_printf("b0info.picc2=%i",atoi(id(luzRGB).state.c_str()));
+            id(disp1).send_command_printf("b1.picc=%i", atoi(id(luz1).state.c_str()));
+            id(disp1).send_command_printf("b1.picc2=%i",atoi(id(luz1).state.c_str()));
+            id(disp1).send_command_printf("b1info.picc=%i", atoi(id(luz1).state.c_str()));
+            id(disp1).send_command_printf("b1info.picc2=%i",atoi(id(luz1).state.c_str()));
   
 
             id(disp1).set_component_text_printf("time", "%02i:%02i", id(homeassistant_time).now().hour, id(homeassistant_time).now().minute);
