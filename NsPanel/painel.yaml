@@ -36,10 +36,8 @@ substitutions:
   device_name: NSPanel Quarto Dedo
   relogio_liga: input_datetime.nsmaleta_liga
   relogio_desliga: input_datetime.nsmaleta_desliga
-  target_thermostat: climate.ar_lucas
   ar1: climate.ar_lucas
   ar2: climate.ar_teste_2
-  target_lights: light.luz_mesa
   luz1: light.virtual_light_1
   luz2: light.virtual_light_2
   luz3: light.virtual_light_3
@@ -515,6 +513,7 @@ binary_sensor:
                   return "${luz4}";
                 }
               brightness: !lambda 'return (int)id(brightness_value2).state;'
+        - lambda: 'id(disp1).set_component_text_printf("t0", "%i%%", (int)((id(brightness_value2).state/255)*100));'
 
   - platform: nextion
     name: $device_name luz2 Button 1
@@ -1909,6 +1908,7 @@ sensor:
               if (!strcmp(id(current_page2).c_str(),to_string("${pag_luzdimmer}").c_str())){
                 if ((int)(id(current_dimmer).state) == 4) {
                   id(disp1).send_command_printf("brightnessVal2.val=%i", (int)x);
+                  id(disp1).set_component_text_printf("t0", "%i%%", (int)((x/255)*100));
                 }
               }
             }
@@ -1923,7 +1923,6 @@ sensor:
     on_value:
       then:
         - lambda: |-
-            ESP_LOGD("DEDO","%i",(int)((x/255)*100) );
             if(id(slider_aux) == false){
               if (!strcmp(id(current_page2).c_str(),to_string("${pag_luzrgb}").c_str())){
                 if ((int)(id(current_rgb).state) == 2) {
@@ -3119,6 +3118,7 @@ script:
           if (!strcmp(id(current_page2).c_str(),to_string("${pag_luzdimmer}").c_str())){//
             if((int)(id(current_dimmer).state) == 4){ 
               id(disp1).send_command_printf("brightnessVal2.val=%i", (int)id(luz4_current_brightness).state);
+              id(disp1).set_component_text_printf("t0", "%i%%", (int)((id(luz4_current_brightness).state/255)*100));
               id(disp1).send_command_printf("b0.picc=%i", 23 + atoi(id(luz4).state.c_str()));
               id(disp1).send_command_printf("b0.picc2=%i",23 + atoi(id(luz4).state.c_str()));
             }else if((int)(id(current_dimmer).state) == 2){

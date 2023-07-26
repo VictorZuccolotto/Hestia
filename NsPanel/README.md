@@ -4,7 +4,7 @@
 - [ ] Pagina Tv - Sources
 - [ ] Pagina Timeconfig - Botão Salvar
 - [x] Reutilizar paginas de LuzRGB, Luz Dimmer, Ar condicionado para multiplas entidades
-- [ ] Pagina Luz Dimmer - porcentagem de brilho
+- [x] Pagina Luz Dimmer - porcentagem de brilho
 - [ ] Pagina cortinas
 
 ## --
