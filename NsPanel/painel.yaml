@@ -3037,6 +3037,7 @@ script:
             id(disp1).send_command_printf("power.picc2=11");
 
             if((int)(id(current_ar).state) == 1){
+              id(disp1).set_component_text_printf("nome", "%s", "Ar Lucas");
               id(disp1).set_component_text_printf("currentTemp", "%i""°", (int)id(ar1_current_temperature).state);
               if (id(ar1_current_mode).state == "0") {
                 id(disp1).set_component_text_printf("targetTemp", "--");
@@ -3063,6 +3064,7 @@ script:
                 id(disp1).send_command_printf("fanSpeed.pic2=13");
               }
             }else{
+              id(disp1).set_component_text_printf("nome", "%s", "Ar Teste 2");
               id(disp1).set_component_text_printf("currentTemp", "%i""°", (int)id(ar2_current_temperature).state);
               if (id(ar2_current_mode).state == "0") {
                 id(disp1).set_component_text_printf("targetTemp", "--");
@@ -3097,12 +3099,14 @@ script:
 
           if (!strcmp(id(current_page2).c_str(),to_string("${pag_luzrgb}").c_str())){// RGB page
             if((int)(id(current_rgb).state) == 1){
+              id(disp1).set_component_text_printf("nome", "%s", "Spot");
               id(disp1).send_command_printf("brightnessVal.val=%i", (int)id(luz1_current_brightness).state);
               id(disp1).send_command_printf("tempSlider.val=%i", (int)id(luz1_current_color_temp).state);
               id(disp1).send_command_printf("colorSlider.val=%s", !strcmp(id(luz1_current_brightness_rgb_slider).state.c_str(),to_string("").c_str()) ? "249" : id(luz1_current_brightness_rgb_slider).state.c_str());
               id(disp1).send_command_printf("b0.picc=%i", 8 + atoi(id(luz1).state.c_str()));
               id(disp1).send_command_printf("b0.picc2=%i",8 + atoi(id(luz1).state.c_str()));
             }else if((int)(id(current_rgb).state) == 2){
+              id(disp1).set_component_text_printf("nome", "%s", "Corredor");
               id(disp1).send_command_printf("brightnessVal.val=%i", (int)id(luz2_current_brightness).state);
               id(disp1).send_command_printf("tempSlider.val=%i", (int)id(luz2_current_color_temp).state);
               id(disp1).send_command_printf("colorSlider.val=%s", !strcmp(id(luz2_current_brightness_rgb_slider).state.c_str(),to_string("").c_str()) ? "249" : id(luz2_current_brightness_rgb_slider).state.c_str());
@@ -3117,6 +3121,7 @@ script:
 
           if (!strcmp(id(current_page2).c_str(),to_string("${pag_luzdimmer}").c_str())){//
             if((int)(id(current_dimmer).state) == 4){ 
+              id(disp1).set_component_text_printf("nome", "%s", "Sala");
               id(disp1).send_command_printf("brightnessVal2.val=%i", (int)id(luz4_current_brightness).state);
               id(disp1).set_component_text_printf("t0", "%i%%", (int)((id(luz4_current_brightness).state/255)*100));
               id(disp1).send_command_printf("b0.picc=%i", 23 + atoi(id(luz4).state.c_str()));
