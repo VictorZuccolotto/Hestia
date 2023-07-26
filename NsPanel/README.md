@@ -8,21 +8,60 @@
 - [ ] Pagina cortinas
 
 ## --
-- [Painel base](#painel_base)
+- [Painel base](#painel-base)
 - [Luzes](#Luzes)
-    - [Adicionar luzes](#add_luzes)
-    - [Adicionar luz RGB](#add_luzRGB)
-    - [Adicionar mais de uma luz RGB](#add1+_luzRGB)
-    - [Adicionar luz dimmer](#add_luzDimmer)
-    - [Adicionar mais de uma luz dimmer](#add1+_luzDimmer)
+    - [Adicionar luzes](#adicionar-luzes)
+    - [Adicionar luz RGB](#adicionar-luz-RGB)
+    - [Adicionar mais de uma luz RGB](#adicionar-mais-de-uma-luz-RGB)
+    - [Adicionar luz dimmer](#adicionar-luz-Dimmer)
+    - [Adicionar mais de uma luz dimmer](#adicionar-mais-de-uma-luz-Dimmer)
 - [Dispositivos](#Dispositivos)
-    - [Ar Condicionado](#ar)
-        - [Adicionar Ar Condicionado](#add_ar)
-        - [Adicionar mais de um Ar Condicionado](#add1+_ar)
-    - [Adicionar Receiver](#add_receiver)
-    - [Adicionar Spotify](#add_spotify)
-    - [Adicionar Tv](#add_tv)
+    - [Ar Condicionado](#ar-condicionado)
+        - [Adicionar Ar Condicionado](#adicionar-ar-condicionado)
+        - [Adicionar mais de um Ar Condicionado](#adicionar-mais-de-um-ar-condicionado)
+    - [Adicionar Receiver](#add-receiver)
+    - [Adicionar Spotify](#add-spotify)
+    - [Adicionar Tv](#add-tv)
     - [Cortinas](#cortina)
-        - [Adicionar Cortina](#add_cortina)
-        - [Adicionar mais de uma Cortina](#add1+_cortina)
+        - [Adicionar Cortina](#add-cortina)
+        - [Adicionar mais de uma Cortina](#add1+-cortina)
 - [Cenas](#cenas)
+
+## Painel base
+
+## Luzes
+
+### Adicionar luzes
+
+### Adicionar luz RGB
+
+### Adicionar mais de uma luz RGB
+
+### Adicionar luz Dimmer
+
+### Adicionar mais de uma luz Dimmer
+
+## Dispositivos
+
+### Ar Condicionado
+
+#### Adicionar ar condicionado
+
+#### Adicionar mais de um ar condicionado
+
+### Adicionar receiver
+
+### Adicionar Spotify
+
+### Adicionar TV
+
+### Cortinas
+
+#### Adicionar cortina
+
+#### Adicionar mais de uma cortina
+
+## Cenas
+
+
+
