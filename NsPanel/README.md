@@ -36,6 +36,8 @@
 
 ### Adicionar luzes
 binary_sensor:
+
+
 \#\#\#\#\#\#\#\#PAGINA Luzes\#\#\#\#\#\#\#\#\#\#
 ```yaml
   - platform: nextion
@@ -69,6 +71,8 @@ text_sensor:
             }   
 ```
 script:
+
+
 if(!strcmp(id(current_page2).c_str(),to_string("${pag_luzes}").c_str())){
 ```yaml
             id(disp1).send_command_printf("b5.picc=%i", atoi(id(luzMaster).state.c_str()));
@@ -76,6 +80,8 @@ if(!strcmp(id(current_page2).c_str(),to_string("${pag_luzes}").c_str())){
 ```
 ### Adicionar luz RGB
 binary_sensor:
+
+
 \#\#\#\#\#\#\#\#PAGINA Luzes\#\#\#\#\#\#\#\#\#\#
 ```yaml
   - platform: nextion
@@ -250,6 +256,8 @@ text_sensor:
         - lambda: 'id(slider_aux) = false;'
 ```
 script:
+
+
 if (!strcmp(id(current_page2).c_str(),to_string("${pag_luzrgb}").c_str()))\{// RGB page
 ```yaml
             if((int)(id(current_rgb).state) == 2){ //Numero da luz
@@ -263,6 +271,8 @@ if (!strcmp(id(current_page2).c_str(),to_string("${pag_luzrgb}").c_str()))\{// R
 ```
 ### Adicionar mais de uma luz RGB
 binary_sensor:
+
+
 \#\#\#\#\#\#\#\#PAGINA Luzes\#\#\#\#\#\#\#\#\#\#
 ```yaml
   - platform: nextion
@@ -437,6 +447,8 @@ text_sensor:
         - lambda: 'id(slider_aux) = false;'
 ```
 script:
+
+
 if (!strcmp(id(current_page2).c_str(),to_string("${pag_luzrgb}").c_str()))\{// RGB page
 ```yaml
             if((int)(id(current_rgb).state) == 1){ //Numero da luz
