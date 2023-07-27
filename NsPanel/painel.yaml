@@ -16,7 +16,7 @@ logger:
 # Enable Home Assistant API
 
 ota:
-  password: "6a068a02a62e3c7c814bfa5c8486b698"
+  password: !secret ota_pwd
 
 wifi:
   ssid: !secret wifi_ssid
@@ -1903,7 +1903,6 @@ sensor:
     on_value:
       then:
         - lambda: |-
-            ESP_LOGD("DEDO","%i",(int)((x/255)*100) );
             if(id(slider_aux) == false){
               if (!strcmp(id(current_page2).c_str(),to_string("${pag_luzdimmer}").c_str())){
                 if ((int)(id(current_dimmer).state) == 4) {
@@ -1959,7 +1958,6 @@ sensor:
     on_value:
       then:
         - lambda: |-
-            ESP_LOGD("DEDO","%i",(int)((x/255)*100) );
             if(id(slider_aux) == false){
               if (!strcmp(id(current_page2).c_str(),to_string("${pag_luzrgb}").c_str())){
                 if ((int)(id(current_rgb).state) == 1) {
@@ -1980,7 +1978,7 @@ sensor:
         - lambda: |-
             if(id(slider_aux) == false){
               if(!strcmp(id(current_page2).c_str(),to_string("${pag_luzrgb}").c_str())){
-                if ((int)(id(current_rgb).state) == 2) {
+                if ((int)(id(current_rgb).state) == 1) {
                   id(disp1).send_command_printf("tempSlider.val=%i", (int)x);
                 }
               }
@@ -3120,22 +3118,22 @@ script:
           }
 
           if (!strcmp(id(current_page2).c_str(),to_string("${pag_luzdimmer}").c_str())){//
-            if((int)(id(current_dimmer).state) == 4){ 
-              id(disp1).set_component_text_printf("nome", "%s", "Sala");
-              id(disp1).send_command_printf("brightnessVal2.val=%i", (int)id(luz4_current_brightness).state);
-              id(disp1).set_component_text_printf("t0", "%i%%", (int)((id(luz4_current_brightness).state/255)*100));
-              id(disp1).send_command_printf("b0.picc=%i", 23 + atoi(id(luz4).state.c_str()));
-              id(disp1).send_command_printf("b0.picc2=%i",23 + atoi(id(luz4).state.c_str()));
+            if((int)(id(current_dimmer).state) == 1){ 
+              
             }else if((int)(id(current_dimmer).state) == 2){
 
             }else if((int)(id(current_dimmer).state) == 3){
 
             }else if((int)(id(current_dimmer).state) == 4){
-
+              id(disp1).set_component_text_printf("nome", "%s", "Sala");
+              id(disp1).send_command_printf("brightnessVal2.val=%i", (int)id(luz4_current_brightness).state);
+              id(disp1).set_component_text_printf("t0", "%i%%", (int)((id(luz4_current_brightness).state/255)*100));
+              id(disp1).send_command_printf("b0.picc=%i", 23 + atoi(id(luz4).state.c_str()));
+              id(disp1).send_command_printf("b0.picc2=%i",23 + atoi(id(luz4).state.c_str()));
             }
           }
 
-          if (!strcmp(id(current_page2).c_str(),to_string("${pag_dispositivos}").c_str())){// Music page
+          if (!strcmp(id(current_page2).c_str(),to_string("${pag_dispositivos}").c_str())){//
             id(disp1).send_command_printf("b2.picc=%i", 4 + atoi(id(media_state).state.c_str()));
             id(disp1).send_command_printf("b2.picc2=%i",4 + atoi(id(media_state).state.c_str()));
             if(id(ar1_current_mode).state == "0"){
