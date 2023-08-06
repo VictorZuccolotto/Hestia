@@ -13,6 +13,11 @@ esphome:
 esp32:
   board: esp32dev
 
+external_components:
+  - source: github://pr#2956
+    components: [nextion]
+    refresh: 1h
+
 # Wifi settings. Add these to your secrets.yaml. fast_connect must be true for a hidden ssid.
 wifi:
   ssid: !secret wifi_ssid

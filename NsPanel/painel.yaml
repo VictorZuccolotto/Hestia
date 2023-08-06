@@ -56,7 +56,10 @@ substitutions:
   receiver_zone_2: media_player.receiver_teste2
   receiver_zone_3: media_player.receiver_teste3
   receiver_zone_all: media_player.receiver_all
-  persiana: cover.cortina_template
+  persiana1: cover.cortina_template
+  persiana2: cover.cortina_template
+  persiana3: cover.cortina_template
+  persiana4: cover.cortina_template
   #Paginas
   pag_luzes: "1"
   pag_ar: "4"
@@ -1605,7 +1608,7 @@ binary_sensor:
 
  ########PAGINA persiana########## 
   - platform: nextion
-    name: $device_name persiana Slider
+    name: $device_name persiana1 Slider
     page_id: $pag_persiana
     component_id: 1
     internal: true
@@ -1613,49 +1616,64 @@ binary_sensor:
       then:
         - lambda: !lambda |-
             id(slider_aux) = true;
-            id(cover_position).update();
+            id(cover1_position).update();
         - delay: 50ms
         - homeassistant.service:
             service: cover.set_cover_position
             data:
-              entity_id: $persiana
-              position: !lambda 'return (int)id(cover_position).state;'
+              entity_id: $persiana1
+              position: !lambda 'return (int)id(cover1_position).state;'
 
   - platform: nextion
-    name: $device_name persiana Button 1
+    name: $device_name persiana2 Slider
     page_id: $pag_persiana
-    component_id: 2
+    component_id: 6
     internal: true
     on_release:
       then:
+        - lambda: !lambda |-
+            id(slider_aux) = true;
+            id(cover2_position).update();
+        - delay: 50ms
         - homeassistant.service:
-            service: cover.close_cover
+            service: cover.set_cover_position
             data:
-              entity_id: $persiana    
+              entity_id: $persiana2
+              position: !lambda 'return (int)id(cover2_position).state;'
 
   - platform: nextion
-    name: $device_name persiana Button 2
+    name: $device_name persiana3 Slider
     page_id: $pag_persiana
-    component_id: 3
+    component_id: 7
     internal: true
     on_release:
       then:
+        - lambda: !lambda |-
+            id(slider_aux) = true;
+            id(cover3_position).update();
+        - delay: 50ms
         - homeassistant.service:
-            service: cover.stop_cover
+            service: cover.set_cover_position
             data:
-              entity_id: $persiana      
+              entity_id: $persiana3
+              position: !lambda 'return (int)id(cover3_position).state;'
 
   - platform: nextion
-    name: $device_name persiana Button 3
+    name: $device_name persiana4 Slider
     page_id: $pag_persiana
-    component_id: 4
+    component_id: 8
     internal: true
     on_release:
       then:
+        - lambda: !lambda |-
+            id(slider_aux) = true;
+            id(cover4_position).update();
+        - delay: 50ms
         - homeassistant.service:
-            service: cover.open_cover
+            service: cover.set_cover_position
             data:
-              entity_id: $persiana       
+              entity_id: $persiana4
+              position: !lambda 'return (int)id(cover4_position).state;'   
 
 sensor:
   - platform: wifi_signal
@@ -2116,15 +2134,60 @@ sensor:
 
  ########Sensor persiana##########
   - platform: homeassistant
-    id: current_position
-    entity_id: $persiana
+    id: persiana1_current_position
+    entity_id: $persiana1
     attribute: current_position
     on_value:
       then:
         - lambda: |-
             if(id(slider_aux) == false){
               if (!strcmp(id(current_page2).c_str(),to_string("${pag_persiana}").c_str())){
-                  id(disp1).send_command_printf("coverVal.val=%i", (int)x);
+                  id(disp1).send_command_printf("cover1.val=%i", (int)x);
+              }
+            }
+        - delay: 100ms
+        - lambda: 'id(slider_aux) = false;'
+
+  - platform: homeassistant
+    id: persiana2_current_position
+    entity_id: $persiana2
+    attribute: current_position
+    on_value:
+      then:
+        - lambda: |-
+            if(id(slider_aux) == false){
+              if (!strcmp(id(current_page2).c_str(),to_string("${pag_persiana}").c_str())){
+                  id(disp1).send_command_printf("cover2.val=%i", (int)x);
+              }
+            }
+        - delay: 100ms
+        - lambda: 'id(slider_aux) = false;'
+
+  - platform: homeassistant
+    id: persiana3_current_position
+    entity_id: $persiana3
+    attribute: current_position
+    on_value:
+      then:
+        - lambda: |-
+            if(id(slider_aux) == false){
+              if (!strcmp(id(current_page2).c_str(),to_string("${pag_persiana}").c_str())){
+                  id(disp1).send_command_printf("cover3.val=%i", (int)x);
+              }
+            }
+        - delay: 100ms
+        - lambda: 'id(slider_aux) = false;'
+
+  - platform: homeassistant
+    id: persiana4_current_position
+    entity_id: $persiana4
+    attribute: current_position
+    on_value:
+      then:
+        - lambda: |-
+            if(id(slider_aux) == false){
+              if (!strcmp(id(current_page2).c_str(),to_string("${pag_persiana}").c_str())){
+                  id(disp1).send_command_printf("cover4.val=%i", (int)x);
               }
             }
         - delay: 100ms
@@ -2132,8 +2195,20 @@ sensor:
  
 
   - platform: nextion
-    id: cover_position
-    component_name: coverVal
+    id: cover1_position
+    component_name: cover1
+
+  - platform: nextion
+    id: cover2_position
+    component_name: cover2
+
+  - platform: nextion
+    id: cover3_position
+    component_name: cover3
+
+  - platform: nextion
+    id: cover4_position
+    component_name: cover4
 
 text_sensor:
  ########TxTSensor Data##########
@@ -3092,7 +3167,10 @@ script:
           }
 
           if (!strcmp(id(current_page2).c_str(),to_string("${pag_persiana}").c_str())){// 
-            id(disp1).send_command_printf("coverVal.val=%i", (int)id(current_position).state);
+            id(disp1).send_command_printf("cover1.val=%i", (int)id(persiana1_current_position).state);
+            id(disp1).send_command_printf("cover2.val=%i", (int)id(persiana2_current_position).state);
+            id(disp1).send_command_printf("cover3.val=%i", (int)id(persiana3_current_position).state);
+            id(disp1).send_command_printf("cover4.val=%i", (int)id(persiana4_current_position).state);
           }
 
           if (!strcmp(id(current_page2).c_str(),to_string("${pag_luzrgb}").c_str())){// RGB page
